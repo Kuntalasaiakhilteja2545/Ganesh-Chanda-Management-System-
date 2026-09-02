@@ -1,0 +1,871 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Telugu:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+:root {
+  --color-maroon: #701a1e;
+  --color-maroon-dark: #500724;
+  --color-gold: #d97706;
+  --color-gold-light: #fbbf24;
+  --color-cream: #fdfbf7;
+  --color-charcoal: #0f172a;
+  --color-green: #15803d;
+  --color-red: #b91c1c;
+
+  font-family: 'Inter', 'Noto Sans Telugu', system-ui, -apple-system, sans-serif;
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--color-cream);
+  color: var(--color-charcoal);
+  -webkit-font-smoothing: antialiased;
+}
+
+.heading-font {
+  font-family: 'Outfit', 'Noto Sans Telugu', sans-serif;
+}
+
+/* Custom smooth scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ========================================================================= */
+/* ANIMATIONS: Lord Ganesha Walking, Aura Glow, Flickering Diyas & Sparkles  */
+/* ========================================================================= */
+
+@keyframes ganeshWalkIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-90px) translateY(8px) scale(0.88);
+  }
+  40% {
+    opacity: 1;
+    transform: translateX(-30px) translateY(-6px) scale(0.96);
+  }
+  75% {
+    transform: translateX(6px) translateY(2px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0px) translateY(0px) scale(1);
+  }
+}
+
+@keyframes ganeshFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(0.4deg);
+  }
+}
+
+@keyframes goldenAuraPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.45;
+    filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.5));
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 0.8;
+    filter: drop-shadow(0 0 40px rgba(251, 191, 36, 0.85));
+  }
+}
+
+@keyframes diyaFlame {
+  0%, 100% {
+    transform: scale(1) rotate(-1deg);
+    opacity: 0.9;
+  }
+  25% {
+    transform: scale(1.12, 1.22) rotate(2deg);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.92, 0.96) rotate(-2deg);
+    opacity: 0.85;
+  }
+  75% {
+    transform: scale(1.08, 1.14) rotate(1deg);
+    opacity: 1;
+  }
+}
+
+@keyframes earWiggle {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(2.5deg);
+  }
+}
+
+@keyframes crownShine {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px rgba(253, 224, 71, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 0 22px rgba(250, 204, 21, 1));
+  }
+}
+
+@keyframes sparkleSpin {
+  0% {
+    transform: rotate(0deg) scale(0.7);
+    opacity: 0.2;
+  }
+  50% {
+    transform: rotate(180deg) scale(1.2);
+    opacity: 0.95;
+  }
+  100% {
+    transform: rotate(360deg) scale(0.7);
+    opacity: 0.2;
+  }
+}
+
+.animate-ganesh-entry {
+  animation: ganeshWalkIn 2.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.animate-ganesh-float {
+  animation: ganeshFloat 4s ease-in-out infinite;
+}
+
+.animate-aura {
+  animation: goldenAuraPulse 3s ease-in-out infinite;
+}
+
+.animate-flame {
+  animation: diyaFlame 1.2s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.animate-ear {
+  animation: earWiggle 3.5s ease-in-out infinite;
+  transform-origin: top center;
+}
+
+.animate-crown {
+  animation: crownShine 2.5s ease-in-out infinite;
+}
+
+.animate-sparkle {
+  animation: sparkleSpin 3s linear infinite;
+}
+
+@keyframes ganeshBreathe {
+  0%, 100% {
+    transform: scale(1) translateY(0px);
+  }
+  50% {
+    transform: scale(1.018) translateY(-4px);
+  }
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Print Specific Rules for Receipts */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printable-receipt, #printable-receipt * {
+    visibility: visible;
+  }
+  #printable-receipt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 16px;
+    background-color: #ffffff !important;
+    border: 2px solid #701a1e !important;
+    box-shadow: none !important;
+  }
+}
+
+/* ========================================================================= */
+/* CINEMATIC 3D GANESH LOGIN EXPERIENCE                                       */
+/* ========================================================================= */
+
+/* === Page Container === */
+.cinematic-login-page {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #050203;
+}
+
+.cinematic-bg-base {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 40%, #1a0c0f 0%, #0a0405 50%, #030102 100%);
+  z-index: 0;
+}
+
+/* === 3D Canvas Container === */
+.cinematic-container {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+/* === Loading State === */
+.cinematic-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at 50% 40%, #1a0c0f 0%, #050203 100%);
+  z-index: 2;
+}
+
+.cinematic-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(218, 165, 32, 0.15);
+  border-top-color: #daa520;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.cinematic-loading-text {
+  margin-top: 16px;
+  font-size: 24px;
+  opacity: 0.6;
+  animation: gentlePulse 2s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes gentlePulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.1); }
+}
+
+/* === Skip Intro Button === */
+.cinematic-skip-btn {
+  position: absolute;
+  bottom: 32px;
+  right: 32px;
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 200, 100, 0.7);
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(218, 165, 32, 0.25);
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.cinematic-skip-btn:hover {
+  color: rgba(255, 220, 140, 1);
+  background: rgba(0, 0, 0, 0.7);
+  border-color: rgba(218, 165, 32, 0.5);
+  transform: translateY(-1px);
+}
+
+/* === Overlay UI Layer === */
+.cinematic-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+.cinematic-overlay > * {
+  pointer-events: auto;
+}
+
+/* === Top Controls === */
+.cinematic-top-controls {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cinematic-lang-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffc870;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(218, 165, 32, 0.3);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.cinematic-lang-btn:hover {
+  background: rgba(0, 0, 0, 0.8);
+  border-color: rgba(218, 165, 32, 0.6);
+  transform: scale(1.03);
+}
+
+/* === Main Content (Title + Login Card) === */
+.cinematic-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  gap: 40px;
+  pointer-events: none;
+}
+
+.cinematic-content > * {
+  pointer-events: auto;
+}
+
+/* Desktop: side-by-side layout */
+@media (min-width: 1024px) {
+  .cinematic-content {
+    justify-content: space-between;
+    padding: 60px 80px;
+  }
+}
+
+/* === Title Area === */
+.cinematic-title-area {
+  text-align: center;
+  max-width: 500px;
+}
+
+@media (min-width: 1024px) {
+  .cinematic-title-area {
+    text-align: left;
+    flex: 1;
+  }
+}
+
+@media (max-width: 1023px) {
+  .cinematic-title-area {
+    position: absolute;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%) !important;
+    z-index: 20;
+  }
+}
+
+.cinematic-title-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(80, 40, 10, 0.6);
+  border: 1px solid rgba(218, 165, 32, 0.3);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffc870;
+  margin-bottom: 12px;
+  backdrop-filter: blur(8px);
+}
+
+.cinematic-title-main {
+  font-family: 'Outfit', 'Noto Sans Telugu', sans-serif;
+  font-size: 42px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #fde68a, #f59e0b, #d97706);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+  margin: 0 0 6px 0;
+  text-shadow: none;
+}
+
+.cinematic-title-sub {
+  font-family: 'Outfit', 'Noto Sans Telugu', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: rgba(255, 200, 120, 0.85);
+  letter-spacing: 2px;
+  margin: 0 0 12px 0;
+}
+
+.cinematic-title-tagline {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 180, 100, 0.55);
+  margin: 0;
+}
+
+@media (max-width: 767px) {
+  .cinematic-title-main {
+    font-size: 28px;
+  }
+  .cinematic-title-sub {
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+  .cinematic-title-tagline {
+    font-size: 11px;
+  }
+}
+
+/* === Login Card === */
+.cinematic-login-card-wrapper {
+  width: 100%;
+  max-width: 420px;
+  will-change: transform, opacity, filter;
+}
+
+@media (min-width: 1024px) {
+  .cinematic-login-card-wrapper {
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 1023px) {
+  .cinematic-login-card-wrapper {
+    margin-top: auto;
+    margin-bottom: 24px;
+  }
+}
+
+.cinematic-login-card {
+  position: relative;
+  background: rgba(18, 8, 10, 0.82);
+  border: 1px solid rgba(218, 165, 32, 0.25);
+  border-radius: 24px;
+  padding: 32px;
+  backdrop-filter: blur(24px);
+  box-shadow:
+    0 0 80px rgba(218, 165, 32, 0.06),
+    0 32px 64px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 200, 100, 0.08);
+  overflow: hidden;
+}
+
+.cinematic-card-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #701a1e, #b8860b, #fbbf24, #b8860b, #701a1e);
+}
+
+/* === Card Header === */
+.cinematic-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.cinematic-card-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: #fde68a;
+  margin: 0;
+}
+
+.cinematic-card-subtitle {
+  font-size: 12px;
+  color: rgba(255, 200, 120, 0.55);
+  margin: 4px 0 0 0;
+  font-weight: 500;
+}
+
+.cinematic-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #701a1e, #b8860b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 4px 16px rgba(218, 165, 32, 0.2);
+}
+
+/* === Form === */
+.cinematic-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cinematic-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cinematic-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: rgba(255, 200, 120, 0.7);
+}
+
+.cinematic-input-wrap {
+  position: relative;
+}
+
+.cinematic-input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: rgba(218, 165, 32, 0.5);
+  pointer-events: none;
+}
+
+.cinematic-input {
+  display: block;
+  width: 100%;
+  padding: 12px 14px 12px 40px;
+  background: rgba(30, 15, 18, 0.8);
+  border: 1px solid rgba(218, 165, 32, 0.2);
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #fde68a;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.25s ease;
+  box-sizing: border-box;
+}
+
+.cinematic-input::placeholder {
+  color: rgba(200, 160, 100, 0.35);
+}
+
+.cinematic-input:focus {
+  border-color: rgba(218, 165, 32, 0.6);
+  box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.1), 0 0 20px rgba(218, 165, 32, 0.08);
+  background: rgba(30, 15, 18, 1);
+}
+
+.cinematic-input-password {
+  padding-right: 44px;
+  font-family: monospace;
+}
+
+.cinematic-eye-btn {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 8px;
+  color: rgba(218, 165, 32, 0.5);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: color 0.2s;
+}
+
+.cinematic-eye-btn:hover {
+  color: rgba(218, 165, 32, 0.9);
+}
+
+/* === Remember Me Row === */
+.cinematic-remember-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: rgba(255, 200, 120, 0.6);
+}
+
+.cinematic-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  font-weight: 600;
+}
+
+.cinematic-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: #b8860b;
+  cursor: pointer;
+}
+
+.cinematic-secure-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(218, 165, 32, 0.5);
+}
+
+/* === Error & Success Messages === */
+.cinematic-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  background: rgba(180, 30, 30, 0.15);
+  border: 1px solid rgba(220, 50, 50, 0.3);
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fca5a5;
+}
+
+.cinematic-success {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  background: rgba(20, 120, 60, 0.15);
+  border: 1px solid rgba(40, 160, 80, 0.3);
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #86efac;
+}
+
+/* === Submit Button === */
+.cinematic-submit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  font-size: 14px;
+  font-weight: 800;
+  font-family: inherit;
+  color: #fff;
+  background: linear-gradient(135deg, #701a1e, #9a3412, #b8860b);
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 8px 24px rgba(112, 26, 30, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.cinematic-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(112, 26, 30, 0.5);
+}
+
+.cinematic-submit-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.cinematic-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cinematic-btn-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+/* === Demo Accounts Section === */
+.cinematic-demo-section {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(218, 165, 32, 0.12);
+}
+
+.cinematic-demo-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 6px 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(218, 165, 32, 0.5);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: color 0.2s;
+}
+
+.cinematic-demo-toggle:hover {
+  color: rgba(218, 165, 32, 0.8);
+}
+
+.cinematic-demo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.cinematic-demo-btn {
+  padding: 10px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.cinematic-demo-btn strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  margin-bottom: 2px;
+}
+
+.cinematic-demo-btn span {
+  display: block;
+  font-size: 10px;
+  font-family: monospace;
+  opacity: 0.5;
+}
+
+.cinematic-demo-admin {
+  color: #c4b5fd;
+}
+.cinematic-demo-admin:hover {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.cinematic-demo-treasurer {
+  color: #86efac;
+}
+.cinematic-demo-treasurer:hover {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.cinematic-demo-collector {
+  color: #fcd34d;
+}
+.cinematic-demo-collector:hover {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+/* === Public Portal Link === */
+.cinematic-public-link {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.cinematic-public-link a {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(218, 165, 32, 0.5);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.cinematic-public-link a:hover {
+  color: rgba(218, 165, 32, 0.9);
+  text-decoration: underline;
+}
+
+/* === Mobile Responsive === */
+@media (max-width: 767px) {
+  .cinematic-login-card {
+    padding: 24px 20px;
+    border-radius: 20px;
+  }
+
+  .cinematic-card-title {
+    font-size: 20px;
+  }
+
+  .cinematic-content {
+    flex-direction: column;
+    padding: 16px;
+    padding-top: 160px;
+    justify-content: flex-end;
+  }
+
+  .cinematic-skip-btn {
+    bottom: auto;
+    top: 20px;
+    right: auto;
+    left: 20px;
+  }
+
+  .cinematic-demo-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .cinematic-title-area {
+    top: 60px;
+  }
+}
+
+@media (max-width: 400px) {
+  .cinematic-title-main {
+    font-size: 24px;
+  }
+
+  .cinematic-login-card {
+    padding: 20px 16px;
+  }
+}
+
