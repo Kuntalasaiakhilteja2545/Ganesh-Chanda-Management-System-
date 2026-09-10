@@ -10,6 +10,7 @@ from pathlib import Path
 from datetime import timedelta
 
 from decouple import config, Csv
+import dj_database_url
 
 # =============================================================================
 # PATH CONFIGURATION
@@ -119,16 +120,26 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # 4. Excellent Django support
 #
 # All values come from .env — never hard-coded.
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME', default='ganesh_chanda_db'),
-        'USER': config('DB_USER', default='postgres'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='5432'),
+DATABASE_URL = config('DATABASE_URL', default=None)
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('DB_NAME', default='ganesh_chanda_db'),
+            'USER': config('DB_USER', default='postgres'),
+            'PASSWORD': config('DB_PASSWORD', default=''),
+            'HOST': config('DB_HOST', default='localhost'),
+            'PORT': config('DB_PORT', default='5432'),
+        }
+    }
 
 # =============================================================================
 # CUSTOM USER MODEL

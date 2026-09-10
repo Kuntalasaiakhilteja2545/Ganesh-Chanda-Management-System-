@@ -15,23 +15,23 @@ from .base import *  # noqa: F401,F403
 # =============================================================================
 DEBUG = False
 
-# ALLOWED_HOSTS: Only your actual domain names.
-# Without this, Django rejects all requests in production.
+# ALLOWED_HOSTS: Domain names allowed to serve the app.
 ALLOWED_HOSTS = config(  # noqa: F405
     'ALLOWED_HOSTS',
-    default='localhost',
+    default='*',
     cast=Csv()  # noqa: F405
 )
 
 # =============================================================================
-# HTTPS SECURITY HEADERS
+# HTTPS SECURITY HEADERS & PROXY SETTINGS
 # =============================================================================
-# These headers protect against common web attacks.
+# Trust the X-Forwarded-Proto header set by Render / Railway / Cloudflare load balancers
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_BROWSER_XSS_FILTER = True        # X-XSS-Protection header
 SECURE_CONTENT_TYPE_NOSNIFF = True       # Prevent MIME type sniffing
 SESSION_COOKIE_SECURE = True             # Cookies only over HTTPS
 CSRF_COOKIE_SECURE = True               # CSRF cookie only over HTTPS
-SECURE_SSL_REDIRECT = True              # Redirect HTTP → HTTPS
+SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=True, cast=bool)
 SECURE_HSTS_SECONDS = 31536000          # HSTS for 1 year
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
@@ -39,16 +39,17 @@ SECURE_HSTS_PRELOAD = True
 # =============================================================================
 # STATIC FILES
 # =============================================================================
-# In production, Django doesn't serve static files.
-# Use Nginx or WhiteNoise instead.
 STATIC_ROOT = BASE_DIR / 'staticfiles'  # noqa: F405
 
 # =============================================================================
-# LOGGING — Log to file in production
+# LOGGING — Log to file in production safely
 # =============================================================================
+LOGS_DIR = BASE_DIR / 'logs'
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
 LOGGING['handlers']['file'] = {  # noqa: F405
     'class': 'logging.FileHandler',
-    'filename': BASE_DIR / 'logs' / 'django.log',  # noqa: F405
+    'filename': LOGS_DIR / 'django.log',
     'formatter': 'verbose',
 }
 LOGGING['root']['handlers'] = ['console', 'file']  # noqa: F405

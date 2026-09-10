@@ -79,20 +79,5 @@ class ExpenseCreateSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, attrs):
-        """Ensure at least category or category_name is provided, and category exists."""
-        category = attrs.get('category')
-        category_name = attrs.get('category_name', '').strip()
-
-        if not category and not category_name:
-            raise serializers.ValidationError({
-                'category': 'Either category ID or category_name must be provided.'
-            })
-
-        if not category and category_name:
-            # Check if category exists by name
-            existing = ExpenseCategory.objects.filter(name__iexact=category_name, is_active=True).first()
-            if not existing:
-                raise serializers.ValidationError({
-                    'category_name': f'Category "{category_name}" does not exist. Contact admin to create it.'
-                })
+        """Pass through category data — view handles lookup/auto-creation."""
         return attrs

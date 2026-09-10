@@ -27,10 +27,11 @@ from audit.models import AuditLog
 
 User = get_user_model()
 
+
 def reset_fresh():
     print(">>> Cleaning all data...")
 
-    # 1. Clear all transaction & custom data
+    # 1. Clear all transaction & custom data (order matters due to foreign keys)
     Receipt.objects.all().delete()
     Donation.objects.all().delete()
     Donor.objects.all().delete()
@@ -61,8 +62,8 @@ def reset_fresh():
         status = "Created" if created else "Reset password for"
         print(f"   * {status}: {username} ({role}) / Password: {pwd}")
 
-    # 3. Setup 15 Standard Bilingual Categories
-    print("\n>>> Seeding 15 standard expense categories...")
+    # 3. Setup 15 Standard Bilingual Categories + General Expense fallback
+    print("\n>>> Seeding 16 standard expense categories...")
     categories = [
         ('Ganesh Idol', 'గణేష్ విగ్రహం', 1),
         ('Decoration', 'అలంకరణ', 2),
@@ -73,12 +74,13 @@ def reset_fresh():
         ('Pooja Materials', 'పూజా సామగ్రి', 7),
         ('Food & Annadanam', 'అన్నదానం & భోజనం', 8),
         ('Water & Refreshments', 'మంచినీళ్ళు & పానీయాలు', 9),
-        ('Transportation', 'రవాణా', 10),
+        ('Transportation', 'ర журна', 10),
         ('Printing & Banners', 'ముద్రణ & బ్యానర్లు', 11),
         ('Cleaning & Sanitation', 'శుభ్రపరచడం', 12),
         ('Prasadam', 'ప్రసాదం', 13),
         ('Cultural Program', 'సాంస్కృతిక కార్యక్రమం', 14),
         ('Miscellaneous', 'ఇతర ఖర్చులు', 15),
+        ('General Expense', 'సాధారణ ఖర్చు', 16),
     ]
 
     ExpenseCategory.objects.all().delete()
@@ -107,6 +109,7 @@ def reset_fresh():
     print("\n=======================================================")
     print("SUCCESS: 100% CLEAN SLATE CREATED FOR CLIENT DEMO!")
     print("=======================================================")
+
 
 if __name__ == '__main__':
     reset_fresh()

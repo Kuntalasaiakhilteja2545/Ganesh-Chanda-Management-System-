@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
@@ -20,6 +20,8 @@ import {
   Tag,
   Calculator,
   ArrowRight,
+  ChevronDown,
+  Check,
 } from 'lucide-react';
 
 export default function Planning() {
@@ -36,12 +38,26 @@ export default function Planning() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
 
-  // Form State
-  const [categoryId, setCategoryId] = useState('');
+  // Form State â€” category combobox
+  const [categoryName, setCategoryName] = useState('');
+  const [isCatDropdownOpen, setIsCatDropdownOpen] = useState(false);
+  const catDropdownRef = useRef(null);
+
   const [plannedAmount, setPlannedAmount] = useState('');
   const [description, setDescription] = useState('');
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Close custom dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (catDropdownRef.current && !catDropdownRef.current.contains(event.target)) {
+        setIsCatDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     fetchPlanningData();
@@ -72,7 +88,8 @@ export default function Planning() {
 
   const handleOpenAdd = () => {
     setEditingItem(null);
-    setCategoryId('');
+    setCategoryName('');
+    setIsCatDropdownOpen(false);
     setPlannedAmount('');
     setDescription('');
     setFormError('');
@@ -81,7 +98,8 @@ export default function Planning() {
 
   const handleOpenEdit = (item) => {
     setEditingItem(item);
-    setCategoryId(item.category_id ? String(item.category_id) : '');
+    setCategoryName(item.category || '');
+    setIsCatDropdownOpen(false);
     setPlannedAmount(item.planned ? String(parseFloat(item.planned)) : '');
     setDescription(item.description || '');
     setFormError('');
@@ -95,14 +113,14 @@ export default function Planning() {
     try {
       if (item.id) {
         await apiClient.delete(`/planning/${item.id}/`);
-        showToastSuccess(`✓ Removed budget for ${catName}.`);
+        showToastSuccess(`âœ“ Removed budget for ${catName}.`);
         fetchPlanningData();
       } else if (item.category_id && activeFestival) {
         const plansRes = await apiClient.get(`/planning/?festival=${activeFestival.id}&category=${item.category_id}`);
         const plans = plansRes.data.results || plansRes.data;
         if (plans.length > 0) {
           await apiClient.delete(`/planning/${plans[0].id}/`);
-          showToastSuccess(`✓ Removed budget for ${catName}.`);
+          showToastSuccess(`âœ“ Removed budget for ${catName}.`);
           fetchPlanningData();
         }
       }
@@ -115,8 +133,8 @@ export default function Planning() {
     e.preventDefault();
     setFormError('');
 
-    if (!categoryId) {
-      setFormError('Please select an expense category.');
+    if (!categoryName.trim()) {
+      setFormError('Please enter or select an expense category.');
       return;
     }
 
@@ -128,23 +146,34 @@ export default function Planning() {
 
     setIsSubmitting(true);
 
+    // Find category ID if it matches an existing one, otherwise send category_name
+    const matchedCategory = categories.find(
+      (c) => c.name.toLowerCase() === categoryName.trim().toLowerCase()
+    );
+
     const payload = {
       festival: activeFestival?.id,
-      category: parseInt(categoryId, 10),
       planned_amount: amt.toFixed(2),
       description: description.trim(),
     };
 
+    if (matchedCategory) {
+      payload.category = matchedCategory.id;
+    } else {
+      payload.category_name = categoryName.trim();
+    }
+
     try {
       if (editingItem?.id) {
         await apiClient.patch(`/planning/${editingItem.id}/`, payload);
-        showToastSuccess('✓ Budget updated successfully!');
+        showToastSuccess('âœ“ Budget updated successfully!');
       } else {
         await apiClient.post('/planning/', payload);
-        showToastSuccess('✓ Category budget saved!');
+        showToastSuccess('âœ“ Category budget saved!');
       }
       setIsModalOpen(false);
       await fetchPlanningData();
+      await fetchCategories();
     } catch (err) {
       setFormError(
         err.response?.data?.message ||
@@ -166,13 +195,27 @@ export default function Planning() {
 
   const isDeficit = summary?.warning != null || parseFloat(summary?.projected_balance || 0) < 0;
 
+  // Filter categories matching user typing for combobox
+  const filteredCategories = categories.filter((c) => {
+    if (!categoryName.trim()) return true;
+    const q = categoryName.toLowerCase();
+    return (
+      c.name.toLowerCase().includes(q) ||
+      (c.name_telugu && c.name_telugu.toLowerCase().includes(q))
+    );
+  });
+
+  const exactCatMatch = categories.some(
+    (c) => c.name.toLowerCase() === categoryName.trim().toLowerCase()
+  );
+
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="heading-font text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-            <span>🎯 {t('planning')} & Budget Control</span>
+            <span>ðŸŽ¯ {t('planning')} & Budget Control</span>
           </h2>
           <p className="text-xs text-slate-500 mt-1 font-medium">
             Pre-festival budget caps, planned vs actual expenditure tracking, and deficit / surplus financial forecasting.
@@ -194,7 +237,7 @@ export default function Planning() {
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-700 hover:bg-purple-800 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md shadow-purple-900/20 transition-all transform hover:-translate-y-0.5 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
-              <span>+ Set Category Budget (బడ్జెట్ నిర్ణయించు)</span>
+              <span>+ Set Category Budget (à°¬à°¡à±à°œà±†à°Ÿà± à°¨à°¿à°°à±à°£à°¯à°¿à°‚à°šà±)</span>
             </button>
           )}
         </div>
@@ -205,24 +248,24 @@ export default function Planning() {
         <div className="p-5 bg-gradient-to-r from-purple-50 via-indigo-50 to-pink-50 border border-purple-200 rounded-3xl space-y-3 animate-in fade-in duration-200 shadow-xs">
           <div className="flex items-center gap-2 text-purple-950 font-black text-sm">
             <Sparkles className="w-4 h-4 text-purple-700" />
-            <span>బడ్జెట్ & ప్రణాళిక (Budget & Planning) ఎలా పనిచేస్తుంది? (How It Works):</span>
+            <span>à°¬à°¡à±à°œà±†à°Ÿà± & à°ªà±à°°à°£à°¾à°³à°¿à°• (Budget & Planning) à°Žà°²à°¾ à°ªà°¨à°¿à°šà±‡à°¸à±à°¤à±à°‚à°¦à°¿? (How It Works):</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 text-xs text-purple-900">
             <div className="p-3.5 bg-white/80 rounded-2xl border border-purple-100 space-y-1">
               <span className="font-extrabold text-purple-950 flex items-center gap-1.5">
                 <Tag className="w-3.5 h-3.5 text-purple-600" />
-                1. Set Budget Ceiling (పరిమితులు):
+                1. Set Budget Ceiling (à°ªà°°à°¿à°®à°¿à°¤à±à°²à±):
               </span>
               <p className="text-slate-600 leading-relaxed">
-                Before festival starts, define planned limits for each category (e.g. ₹25,000 for Idol, ₹20,000 for Sound, ₹15,000 for Lighting).
+                Before festival starts, define planned limits for each category (e.g. â‚¹25,000 for Idol, â‚¹20,000 for Sound, â‚¹15,000 for Lighting).
               </p>
             </div>
 
             <div className="p-3.5 bg-white/80 rounded-2xl border border-purple-100 space-y-1">
               <span className="font-extrabold text-purple-950 flex items-center gap-1.5">
                 <Calculator className="w-3.5 h-3.5 text-indigo-600" />
-                2. Live Spend Tracking (నిజమైన ఖర్చు):
+                2. Live Spend Tracking (à°¨à°¿à°œà°®à±ˆà°¨ à°–à°°à±à°šà±):
               </span>
               <p className="text-slate-600 leading-relaxed">
                 Whenever expenses or advances are entered in the Expenses tab, the system compares actual spent against planned budget in real-time.
@@ -232,7 +275,7 @@ export default function Planning() {
             <div className="p-3.5 bg-white/80 rounded-2xl border border-purple-100 space-y-1">
               <span className="font-extrabold text-purple-950 flex items-center gap-1.5">
                 <Wallet className="w-3.5 h-3.5 text-pink-600" />
-                3. Deficit Warning (లోటు హెచ్చరిక):
+                3. Deficit Warning (à°²à±‹à°Ÿà± à°¹à±†à°šà±à°šà°°à°¿à°•):
               </span>
               <p className="text-slate-600 leading-relaxed">
                 Shows Projected Balance = (Total Chanda Collections) - (Total Planned Budget). Alerts the committee if more chanda is needed!
@@ -247,7 +290,7 @@ export default function Planning() {
         <div className="p-4 bg-rose-50 border-2 border-rose-300 rounded-3xl flex items-center gap-3 text-rose-900 text-sm font-semibold shadow-xs animate-in fade-in">
           <AlertTriangle className="w-7 h-7 text-rose-600 shrink-0 animate-bounce" />
           <div>
-            <p className="font-black text-base text-rose-950">⚠️ బడ్జెట్ లోటు హెచ్చరిక (Budget Deficit Alert)!</p>
+            <p className="font-black text-base text-rose-950">âš ï¸ à°¬à°¡à±à°œà±†à°Ÿà± à°²à±‹à°Ÿà± à°¹à±†à°šà±à°šà°°à°¿à°• (Budget Deficit Alert)!</p>
             <p className="text-xs text-rose-800 font-medium mt-0.5">
               Total planned festival budget exceeds the current available chanda collections. Additional collections needed: <strong>{formatCurrency(Math.abs(parseFloat(summary?.projected_balance || 0)))}</strong>
             </p>
@@ -281,7 +324,7 @@ export default function Planning() {
         <StatCard
           title={t('projectedBalance')}
           value={formatCurrency(summary?.projected_balance)}
-          subtitle={isDeficit ? '🔴 Deficit forecast (More chanda needed)' : '🟢 Safe budget surplus'}
+          subtitle={isDeficit ? 'ðŸ”´ Deficit forecast (More chanda needed)' : 'ðŸŸ¢ Safe budget surplus'}
           icon={Wallet}
           color={isDeficit ? 'rose' : 'emerald'}
         />
@@ -360,7 +403,7 @@ export default function Planning() {
                                 {pct}% utilized
                               </span>
                               {isOverBudget && (
-                                <span className="text-red-600 font-black">OVER BUDGET ⚠️</span>
+                                <span className="text-red-600 font-black">OVER BUDGET âš ï¸</span>
                               )}
                             </div>
                             <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200/60">
@@ -420,7 +463,7 @@ export default function Planning() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={editingItem?.planned && parseFloat(editingItem.planned) > 0 ? '✏️ Edit Category Budget (బడ్జెట్ సవరించు)' : '🎯 Set Category Budget (బడ్జెట్ నిర్ణయించు)'}
+        title={editingItem?.planned && parseFloat(editingItem.planned) > 0 ? 'âœï¸ Edit Category Budget (à°¬à°¡à±à°œà±†à°Ÿà± à°¸à°µà°°à°¿à°‚à°šà±)' : 'ðŸŽ¯ Set Category Budget (à°¬à°¡à±à°œà±†à°Ÿà± à°¨à°¿à°°à±à°£à°¯à°¿à°‚à°šà±)'}
         maxWidth="max-w-md"
       >
         <form onSubmit={handleSaveBudget} className="space-y-4">
@@ -431,31 +474,85 @@ export default function Planning() {
             </div>
           )}
 
-          <div>
-            <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-              Expense Category (ఖర్చు విభాగం) *
+          {/* Category Combobox â€” supports typing custom names */}
+          <div ref={catDropdownRef} className="relative">
+            <label className="block text-xs font-extrabold uppercase text-slate-700 mb-1.5 flex items-center gap-1.5">
+              <Tag className="w-3.5 h-3.5 text-purple-600" />
+              <span>Expense Category (à°–à°°à±à°šà± à°µà°¿à°­à°¾à°—à°‚) *</span>
             </label>
-            <select
-              required
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-              className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:ring-2 focus:ring-purple-500 focus:outline-none"
-            >
-              <option value="">-- Select Category --</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {lang === 'te' && c.name_telugu ? `${c.name_telugu} (${c.name})` : c.name}
-                </option>
-              ))}
-            </select>
+
+            <div className="relative">
+              <input
+                type="text"
+                required
+                autoComplete="off"
+                placeholder="e.g. Ganesh Idol (à°µà°¿à°—à±à°°à°¹à°‚), Sound, Lighting, Tent..."
+                value={categoryName}
+                onFocus={() => setIsCatDropdownOpen(true)}
+                onChange={(e) => {
+                  setCategoryName(e.target.value);
+                  setIsCatDropdownOpen(true);
+                }}
+                className="w-full pl-3.5 pr-10 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium focus:ring-2 focus:ring-purple-500 focus:bg-white focus:outline-none transition-all"
+              />
+              <button
+                type="button"
+                onClick={() => setIsCatDropdownOpen(!isCatDropdownOpen)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+              >
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isCatDropdownOpen ? 'rotate-180 text-purple-600' : ''}`} />
+              </button>
+            </div>
+
+            {/* Custom Dropdown Suggestions Panel */}
+            {isCatDropdownOpen && (
+              <div className="absolute top-full left-0 right-0 mt-1.5 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 max-h-56 overflow-y-auto divide-y divide-slate-100 animate-in fade-in zoom-in-95 duration-150">
+                {categoryName.trim() && !exactCatMatch && (
+                  <div
+                    onClick={() => setIsCatDropdownOpen(false)}
+                    className="p-3 bg-purple-50/70 hover:bg-purple-100/80 cursor-pointer flex items-center justify-between text-xs font-extrabold text-purple-900 transition-colors"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+                      <span>Use Custom Category: <strong>"{categoryName}"</strong></span>
+                    </span>
+                    <span className="text-[10px] bg-purple-200/80 px-2 py-0.5 rounded-full uppercase">New</span>
+                  </div>
+                )}
+
+                {filteredCategories.map((c) => {
+                  const isSelected = c.name.toLowerCase() === categoryName.trim().toLowerCase();
+                  return (
+                    <div
+                      key={c.id}
+                      onClick={() => {
+                        setCategoryName(c.name);
+                        setIsCatDropdownOpen(false);
+                      }}
+                      className={`p-2.5 px-3.5 hover:bg-slate-50 cursor-pointer flex items-center justify-between transition-colors ${
+                        isSelected ? 'bg-purple-50/70' : ''
+                      }`}
+                    >
+                      <div>
+                        <p className="text-xs font-bold text-slate-900">{c.name}</p>
+                        {c.name_telugu && (
+                          <p className="text-[10px] text-slate-500 font-medium">{c.name_telugu}</p>
+                        )}
+                      </div>
+                      {isSelected && <Check className="w-4 h-4 text-purple-600" />}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div>
             <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-              Planned Budget Amount (కేటాయించిన బడ్జెట్ మొత్తం ₹) *
+              Planned Budget Amount (à°•à±‡à°Ÿà°¾à°¯à°¿à°‚à°šà°¿à°¨ à°¬à°¡à±à°œà±†à°Ÿà± à°®à±Šà°¤à±à°¤à°‚ â‚¹) *
             </label>
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 font-bold">₹</span>
+              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 font-bold">â‚¹</span>
               <input
                 type="number"
                 step="0.01"
@@ -471,7 +568,7 @@ export default function Planning() {
 
           <div>
             <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-              Notes / Description (వివరాలు / గమనికలు)
+              Notes / Description (à°µà°¿à°µà°°à°¾à°²à± / à°—à°®à°¨à°¿à°•à°²à±)
             </label>
             <input
               type="text"
@@ -495,7 +592,7 @@ export default function Planning() {
               disabled={isSubmitting}
               className="px-6 py-2.5 bg-purple-700 hover:bg-purple-800 text-white font-extrabold text-xs rounded-xl shadow-md shadow-purple-900/20 transition-all cursor-pointer disabled:opacity-50"
             >
-              {isSubmitting ? t('loading') : 'Save Budget (బడ్జెట్ దాచు)'}
+              {isSubmitting ? t('loading') : 'Save Budget (à°¬à°¡à±à°œà±†à°Ÿà± à°¦à°¾à°šà±)'}
             </button>
           </div>
         </form>

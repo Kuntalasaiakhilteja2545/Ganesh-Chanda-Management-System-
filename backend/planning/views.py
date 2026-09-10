@@ -14,7 +14,7 @@ from donations.models import Donation
 from expenses.models import Expense, ExpenseCategory
 from festivals.models import Festival
 from .models import PlannedExpense
-from .serializers import PlannedExpenseSerializer
+from .serializers import PlannedExpenseSerializer, PlannedExpenseCreateSerializer
 
 
 class PlannedExpenseViewSet(ModelViewSet):
@@ -32,6 +32,11 @@ class PlannedExpenseViewSet(ModelViewSet):
     def get_queryset(self):
         return PlannedExpense.objects.select_related('category', 'festival').all()
 
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return PlannedExpenseCreateSerializer
+        return PlannedExpenseSerializer
+
     def create(self, request, *args, **kwargs):
         """
         Upsert budget: If budget for (festival, category) already exists,
@@ -39,20 +44,30 @@ class PlannedExpenseViewSet(ModelViewSet):
         """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        festival = serializer.validated_data['festival']
-        category = serializer.validated_data['category']
+
+        data = dict(serializer.validated_data)
+        festival = data['festival']
+        category = data.pop('category', None)
+        category_name = data.pop('category_name', '').strip()
+
+        if not category:
+            if not category_name:
+                category_name = "General Expense"
+            # Look up existing or auto-create new category
+            category = ExpenseCategory.objects.filter(name__iexact=category_name, is_active=True).first()
+            if not category:
+                category = ExpenseCategory.objects.create(name=category_name, is_active=True)
 
         instance = PlannedExpense.objects.filter(festival=festival, category=category).first()
         if instance:
-            instance.planned_amount = serializer.validated_data.get('planned_amount', instance.planned_amount)
-            instance.description = serializer.validated_data.get('description', instance.description)
-            instance.notes = serializer.validated_data.get('notes', instance.notes)
+            instance.planned_amount = data.get('planned_amount', instance.planned_amount)
+            instance.description = data.get('description', instance.description)
+            instance.notes = data.get('notes', instance.notes)
             instance.save()
             return Response(PlannedExpenseSerializer(instance).data, status=status.HTTP_200_OK)
 
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        new_plan = PlannedExpense.objects.create(festival=festival, category=category, **data)
+        return Response(PlannedExpenseSerializer(new_plan).data, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=['get'])
     def summary(self, request):

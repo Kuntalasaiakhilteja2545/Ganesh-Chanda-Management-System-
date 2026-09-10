@@ -73,12 +73,10 @@ class ExpenseViewSet(ModelViewSet):
         if not category:
             if not category_name:
                 category_name = "General Expense"
-            category = ExpenseCategory.objects.filter(name__iexact=category_name).first()
+            # Look up existing or auto-create new category
+            category = ExpenseCategory.objects.filter(name__iexact=category_name, is_active=True).first()
             if not category:
-                return Response(
-                    {'category': f'Category "{category_name}" does not exist. Contact admin to create it.'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+                category = ExpenseCategory.objects.create(name=category_name, is_active=True)
 
         expense = Expense.objects.create(
             category=category,
@@ -95,12 +93,10 @@ class ExpenseViewSet(ModelViewSet):
 
         category_name = request.data.get('category_name', '').strip() if isinstance(request.data, dict) else ''
         if category_name and not request.data.get('category'):
-            category = ExpenseCategory.objects.filter(name__iexact=category_name).first()
+            # Look up existing or auto-create new category
+            category = ExpenseCategory.objects.filter(name__iexact=category_name, is_active=True).first()
             if not category:
-                return Response(
-                    {'category': f'Category "{category_name}" does not exist. Contact admin to create it.'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+                category = ExpenseCategory.objects.create(name=category_name, is_active=True)
             instance.category = category
 
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
