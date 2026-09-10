@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useLiveSync } from '../context/LiveSyncContext';
 import apiClient from '../api/client';
 import Modal from '../components/Modal';
 import { transliterateToTelugu } from '../utils/teluguTransliterate';
@@ -9,6 +10,7 @@ import { Calendar, Plus, CheckCircle2, AlertCircle, Languages, Edit2, Trash2 } f
 export default function Festivals() {
   const { activeFestival, setActiveFestival, isAdmin } = useAuth();
   const { t } = useLanguage();
+  const { notifyLiveUpdate, syncVersion } = useLiveSync();
 
   const [festivals, setFestivals] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,7 +33,7 @@ export default function Festivals() {
 
   useEffect(() => {
     fetchFestivals();
-  }, []);
+  }, [syncVersion]);
 
   const fetchFestivals = async () => {
     setLoading(true);
@@ -79,6 +81,7 @@ export default function Festivals() {
     }
     try {
       await apiClient.delete(`/festivals/${id}/`);
+      notifyLiveUpdate();
       fetchFestivals();
     } catch (err) {
       alert('Failed to delete festival.');
@@ -116,6 +119,7 @@ export default function Festivals() {
         await apiClient.post('/festivals/', payload);
       }
 
+      notifyLiveUpdate();
       setIsModalOpen(false);
       fetchFestivals();
     } catch (err) {
@@ -133,6 +137,7 @@ export default function Festivals() {
     try {
       await apiClient.patch(`/festivals/${fest.id}/`, { is_active: true });
       setActiveFestival(fest);
+      notifyLiveUpdate();
       fetchFestivals();
     } catch (err) {
       console.error('Error setting active festival:', err);

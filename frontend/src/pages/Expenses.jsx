@@ -31,6 +31,7 @@ export default function Expenses() {
   const { activeFestival, isTreasurer } = useAuth();
   const { lang, t } = useLanguage();
   const { success: showToastSuccess, error: showToastError } = useToast();
+  const { notifyLiveUpdate, syncVersion } = useLiveSync();
 
   const [expenses, setExpenses] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -90,18 +91,18 @@ export default function Expenses() {
   useEffect(() => {
     fetchExpenses();
     fetchCategories();
-  }, [activeFestival, selectedCategory, selectedStatusFilter, search]);
+  }, [activeFestival, selectedCategory, selectedStatusFilter, search, syncVersion]);
 
   const fetchExpenses = async () => {
     setLoading(true);
     try {
-      let url = '/expenses/?';
-      if (activeFestival) url += `festival=${activeFestival.id}&`;
-      if (selectedCategory) url += `category=${selectedCategory}&`;
-      if (selectedStatusFilter) url += `payment_status=${selectedStatusFilter}&`;
-      if (search) url += `search=${encodeURIComponent(search)}&`;
+      const params = new URLSearchParams();
+      if (activeFestival) params.append('festival', activeFestival.id);
+      if (selectedCategory) params.append('category', selectedCategory);
+      if (selectedStatusFilter) params.append('payment_status', selectedStatusFilter);
+      if (search.trim()) params.append('search', search.trim());
 
-      const res = await apiClient.get(url);
+      const res = await apiClient.get(`/expenses/?${params.toString()}`);
       setExpenses(res.data.results || res.data);
     } catch (err) {
       console.error('Error fetching expenses:', err);
@@ -186,6 +187,7 @@ export default function Expenses() {
       await apiClient.patch(`/expenses/${settlingExpense.id}/`, payload);
       showToastSuccess(`✓ Payment recorded! Balance updated for "${settlingExpense.description}".`);
       setSettlingExpense(null);
+      notifyLiveUpdate();
       fetchExpenses();
     } catch (err) {
       console.error('Error settling payment:', err);
@@ -200,6 +202,7 @@ export default function Expenses() {
     try {
       await apiClient.delete(`/expenses/${id}/`);
       showToastSuccess(`✓ Expense "${desc}" deleted.`);
+      notifyLiveUpdate();
       fetchExpenses();
     } catch (err) {
       showToastError('Failed to delete expense.');
@@ -265,6 +268,7 @@ export default function Expenses() {
       }
 
       setIsModalOpen(false);
+      notifyLiveUpdate();
       await fetchExpenses();
       await fetchCategories();
     } catch (err) {
@@ -326,26 +330,22 @@ export default function Expenses() {
 
         <div className="flex flex-wrap items-center gap-2">
           {/* Quick Add Advance Button */}
-          {isTreasurer && (
-            <button
-              onClick={() => handleOpenAdd('ADVANCE_PAID')}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-amber-700 to-orange-600 hover:from-amber-800 hover:to-orange-700 text-white font-extrabold text-xs rounded-xl shadow-md shadow-amber-900/20 transition-all transform hover:-translate-y-0.5 cursor-pointer"
-            >
-              <Clock className="w-3.5 h-3.5 text-amber-200" />
-              <span>+ Pay Advance (అడ్వాన్స్ చెల్లింపు)</span>
-            </button>
-          )}
+          <button
+            onClick={() => handleOpenAdd('ADVANCE_PAID')}
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-amber-700 to-orange-600 hover:from-amber-800 hover:to-orange-700 text-white font-extrabold text-xs rounded-xl shadow-md shadow-amber-900/20 transition-all transform hover:-translate-y-0.5 cursor-pointer"
+          >
+            <Clock className="w-3.5 h-3.5 text-amber-200" />
+            <span>+ Pay Advance (అడ్వాన్స్ చెల్లింపు)</span>
+          </button>
 
           {/* Standard Add Expense Button */}
-          {isTreasurer && (
-            <button
-              onClick={() => handleOpenAdd('FULLY_PAID')}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-rose-700 hover:bg-rose-800 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md shadow-rose-900/20 transition-all transform hover:-translate-y-0.5 cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              <span>{t('addExpense')}</span>
-            </button>
-          )}
+          <button
+            onClick={() => handleOpenAdd('FULLY_PAID')}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-rose-700 hover:bg-rose-800 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md shadow-rose-900/20 transition-all transform hover:-translate-y-0.5 cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>{t('addExpense')}</span>
+          </button>
         </div>
       </div>
 
@@ -524,14 +524,12 @@ export default function Expenses() {
                             <span className="font-mono font-black text-orange-700 text-sm">
                               {formatCurrency(balance)}
                             </span>
-                            {isTreasurer && (
-                              <button
-                                onClick={() => handleOpenSettle(exp)}
-                                className="block text-[10px] font-extrabold text-amber-800 hover:text-amber-950 bg-amber-100 hover:bg-amber-200 px-2 py-0.5 rounded-md border border-amber-300 transition-colors cursor-pointer"
-                              >
-                                Pay Balance ➔
-                              </button>
-                            )}
+                            <button
+                              onClick={() => handleOpenSettle(exp)}
+                              className="block text-[10px] font-extrabold text-amber-800 hover:text-amber-950 bg-amber-100 hover:bg-amber-200 px-2 py-0.5 rounded-md border border-amber-300 transition-colors cursor-pointer"
+                            >
+                              Pay Balance ➔
+                            </button>
                           </div>
                         ) : (
                           <span className="text-[11px] text-emerald-600 font-bold">₹0.00 (Nil)</span>
@@ -539,24 +537,22 @@ export default function Expenses() {
                       </td>
                       <td className="py-4 px-6 text-slate-600 font-medium">{exp.expense_date}</td>
                       <td className="py-4 px-6 text-right">
-                        {isTreasurer && (
-                          <div className="flex items-center justify-end gap-1.5">
-                            <button
-                              onClick={() => handleOpenEdit(exp)}
-                              className="p-1.5 text-slate-400 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-colors cursor-pointer"
-                              title="Edit Expense"
-                            >
-                              <Edit2 className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteExpense(exp.id, exp.description)}
-                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-                              title="Delete Expense"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        )}
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => handleOpenEdit(exp)}
+                            className="p-1.5 text-slate-400 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-colors cursor-pointer"
+                            title="Edit Expense"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteExpense(exp.id, exp.description)}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                            title="Delete Expense"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );

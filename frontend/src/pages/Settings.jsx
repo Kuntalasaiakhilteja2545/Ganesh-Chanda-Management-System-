@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useLiveSync } from '../context/LiveSyncContext';
 import apiClient from '../api/client';
 import { transliterateToTelugu } from '../utils/teluguTransliterate';
 import {
@@ -26,6 +27,7 @@ import { Link } from 'react-router-dom';
 export default function Settings() {
   const { activeFestival, setActiveFestival } = useAuth();
   const { t } = useLanguage();
+  const { notifyLiveUpdate } = useLiveSync();
   const fileInputRef = useRef(null);
 
   const [name, setName] = useState('');
@@ -38,6 +40,14 @@ export default function Settings() {
   const [qrCodeImage, setQrCodeImage] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+
+  // Feature 5: Customizable WhatsApp Message & Receipt Template State
+  const [waTemplate, setWaTemplate] = useState(() => {
+    return (
+      localStorage.getItem('gms_whatsapp_template') ||
+      `🕉️ *|| ॐ శ్రీ గణేశాయ నమః ||* 🕉️\n\n*{association_name}*\n*{festival_name} - అధికారిక చందా రసీదు*\n━━━━━━━━━━━━━━━━━━━━\n👤 *దాత పేరు (Devotee):* {devotee_name}\n🧾 *రసీదు నెం (Receipt No):* {receipt_no}\n💰 *విరాళం మొత్తం (Amount):* ₹{amount}\n📅 *తేదీ (Date):* {date}\n━━━━━━━━━━━━━━━━━━━━\n🙏 *మీ పవిత్ర విరాళానికి హృదయపూర్వక ధన్యవాదాలు! గణనాథుని ఆశీస్సులు మీకు సదా ఉండాలని కోరుకుంటున్నాము!* 🙏\n\n🌐 *పారదర్శక పోర్టల్:* {portal_url}`
+    );
+  });
 
   const [loading, setLoading] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
@@ -160,7 +170,9 @@ export default function Settings() {
         });
       }
 
+      localStorage.setItem('gms_whatsapp_template', waTemplate);
       setActiveFestival(res.data);
+      notifyLiveUpdate();
       setSavedSuccess(true);
       setTimeout(() => setSavedSuccess(false), 3000);
     } catch (err) {
@@ -431,6 +443,36 @@ export default function Settings() {
                 onChange={(e) => setUpiId(e.target.value)}
                 placeholder="e.g. veerabadhraswamy@ybl / 9876543210@phonepe"
                 className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-mono focus:ring-2 focus:ring-amber-500 focus:bg-white focus:outline-none"
+              />
+            </div>
+
+            {/* Feature 5: WhatsApp Receipt Message Customizer */}
+            <div className="pt-4 border-t border-slate-100 space-y-2">
+              <label className="block text-xs font-black uppercase text-slate-800 flex items-center justify-between">
+                <span>💬 WhatsApp Receipt Message Customizer</span>
+                <span className="text-[10px] text-amber-800 font-bold bg-amber-100 px-2 py-0.5 rounded-full">
+                  Live Custom Template
+                </span>
+              </label>
+              <p className="text-[11px] text-slate-500">
+                Customize the default WhatsApp text layout sent to devotees when sharing receipts. Available tags:
+              </p>
+              <div className="flex flex-wrap gap-1.5 font-mono text-[10px]">
+                {['{devotee_name}', '{amount}', '{receipt_no}', '{date}', '{association_name}', '{festival_name}', '{portal_url}'].map((chip) => (
+                  <span
+                    key={chip}
+                    onClick={() => setWaTemplate((prev) => `${prev} ${chip}`)}
+                    className="px-2 py-0.5 bg-slate-100 hover:bg-amber-100 text-slate-700 hover:text-amber-900 border border-slate-200 rounded-md cursor-pointer transition-colors"
+                  >
+                    + {chip}
+                  </span>
+                ))}
+              </div>
+              <textarea
+                rows={5}
+                value={waTemplate}
+                onChange={(e) => setWaTemplate(e.target.value)}
+                className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono focus:ring-2 focus:ring-amber-500 focus:bg-white focus:outline-none"
               />
             </div>
           </div>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useLiveSync } from '../context/LiveSyncContext';
 import apiClient from '../api/client';
 import StatCard from '../components/StatCard';
 import ReceiptModal from '../components/ReceiptModal';
@@ -21,11 +22,12 @@ import {
   PieChart,
   Calendar,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import VelamLeaderboard from '../components/VelamLeaderboard';
 
 export default function Dashboard() {
   const { user, role, isTreasurer, activeFestival } = useAuth();
   const { lang, t } = useLanguage();
+  const { syncVersion } = useLiveSync();
 
   const [summary, setSummary] = useState(null);
   const [recentDonations, setRecentDonations] = useState([]);
@@ -34,7 +36,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchDashboardData();
-  }, [activeFestival]);
+  }, [activeFestival, syncVersion]);
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -256,6 +258,9 @@ export default function Dashboard() {
           </>
         )}
       </div>
+
+      {/* Feature 1: Velam Paata Live Leaderboard */}
+      <VelamLeaderboard activeFestival={activeFestival} />
 
       {/* Grid: Payment Method Breakdown & Recent Live Donations */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

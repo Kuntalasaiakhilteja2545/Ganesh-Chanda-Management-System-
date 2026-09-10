@@ -25,6 +25,7 @@ export default function ReceiptModal({ isOpen, onClose, donation }) {
       document.body.appendChild(link);
       link.click();
       link.remove();
+      window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Error downloading receipt PDF:', err);
       alert('Could not download PDF receipt. Please check server connection.');
@@ -83,7 +84,20 @@ export default function ReceiptModal({ isOpen, onClose, donation }) {
     const portalUrl = `${window.location.origin}/public`;
     const isVelam = donation.donation_type === 'VELAM_PAATA';
 
-    const text = `🕉️ *|| ॐ శ్రీ గణేశాయ నమః ||* 🕉️\n\n*${assoc}*\n*${festival} - ${isVelam ? '🏆 పవిత్ర వేలం పాట రసీదు (Auction Receipt)' : 'అధికారిక చందా రసీదు (Official Receipt)'}*\n━━━━━━━━━━━━━━━━━━━━\n👤 *దాత పేరు (Devotee):* ${devotee}\n${isVelam && donation.auction_item ? `🏆 *వేలం పాట వస్తువు (Auction Item):* ${donation.auction_item}\n` : ''}${donation.donor_address ? `📍 *Location:* ${donation.donor_address}\n` : ''}🧾 *రసీదు నెం (Receipt No):* ${receiptNo}\n💰 *విరాళం మొత్తం (Amount):* ${amountStr}\n📅 *తేదీ (Date):* ${donation.donation_date}\n💳 *చెల్లింపు విధానం (Payment):* ${donation.payment_method_display || donation.payment_method}\n${donation.collector_member_name ? `🤝 *వసూలు చేసిన యువకుడు (Collected By):* ${donation.collector_member_name}\n` : ''}━━━━━━━━━━━━━━━━━━━━\n🙏 *గణేష్ మహోత్సవానికి మీ పవిత్ర సహకారం అందించినందుకు హృదయపూర్వక ధన్యవాదాలు! గణనాథుని ఆశీస్సులు మీకు మీ కుటుంబానికి సదా ఉండాలని కోరుకుంటున్నాము!* 🙏\n\n🌐 *పారదర్శక లెక్కల వివరాలు (Public Portal):* ${portalUrl}`;
+    const savedTemplate = localStorage.getItem('gms_whatsapp_template');
+    let text = '';
+    if (savedTemplate) {
+      text = savedTemplate
+        .replace('{devotee_name}', devotee)
+        .replace('{amount}', donation.amount)
+        .replace('{receipt_no}', receiptNo)
+        .replace('{date}', donation.donation_date)
+        .replace('{association_name}', assoc)
+        .replace('{festival_name}', festival)
+        .replace('{portal_url}', portalUrl);
+    } else {
+      text = `🕉️ *|| ॐ శ్రీ గణేశాయ నమః ||* 🕉️\n\n*${assoc}*\n*${festival} - ${isVelam ? '🏆 పవిత్ర వేలం పాట రసీదు (Auction Receipt)' : 'అధికారిక చందా రసీదు (Official Receipt)'}*\n━━━━━━━━━━━━━━━━━━━━\n👤 *దాత పేరు (Devotee):* ${devotee}\n${isVelam && donation.auction_item ? `🏆 *వేలం పాట వస్తువు (Auction Item):* ${donation.auction_item}\n` : ''}${donation.donor_address ? `📍 *Location:* ${donation.donor_address}\n` : ''}🧾 *రసీదు నెం (Receipt No):* ${receiptNo}\n💰 *విరాళం మొత్తం (Amount):* ${amountStr}\n📅 *తేదీ (Date):* ${donation.donation_date}\n💳 *చెల్లింపు విధానం (Payment):* ${donation.payment_method_display || donation.payment_method}\n${donation.collector_member_name ? `🤝 *వసూలు చేసిన యువకుడు (Collected By):* ${donation.collector_member_name}\n` : ''}━━━━━━━━━━━━━━━━━━━━\n🙏 *గణేష్ మహోత్సవానికి మీ పవిత్ర సహకారం అందించినందుకు హృదయపూర్వక ధన్యవాదాలు! గణనాథుని ఆశీస్సులు మీకు మీ కుటుంబానికి సదా ఉండాలని కోరుకుంటున్నాము!* 🙏\n\n🌐 *పారదర్శక లెక్కల వివరాలు (Public Portal):* ${portalUrl}`;
+    }
 
     let url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
     if (donation.donor_mobile) {

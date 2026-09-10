@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status as http_status
 
-from accounts.permissions import IsTreasurerOrAbove
+from accounts.permissions import IsCollectorOrAbove, IsTreasurerOrAbove
 from donations.models import Donation
 
 
@@ -47,7 +47,7 @@ class DonationExcelView(APIView):
     
     Export all donations as Excel file.
     """
-    permission_classes = [IsTreasurerOrAbove]
+    permission_classes = [IsCollectorOrAbove]
 
     def get(self, request):
         from .excel_service import generate_donations_excel
@@ -82,7 +82,7 @@ class ExpenseExcelView(APIView):
     """
     GET /api/exports/expenses/?festival_id=1
     """
-    permission_classes = [IsTreasurerOrAbove]
+    permission_classes = [IsCollectorOrAbove]
 
     def get(self, request):
         from .excel_service import generate_expenses_excel

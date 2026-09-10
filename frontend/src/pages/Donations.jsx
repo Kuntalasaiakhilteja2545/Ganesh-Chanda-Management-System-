@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
+import { useLiveSync } from '../context/LiveSyncContext';
 import apiClient from '../api/client';
 import Modal from '../components/Modal';
 import ReceiptModal from '../components/ReceiptModal';
@@ -36,6 +37,7 @@ export default function Donations() {
   const { activeFestival, isTreasurer } = useAuth();
   const { lang, t } = useLanguage();
   const { success: showToastSuccess, error: showToastError } = useToast();
+  const { notifyLiveUpdate, syncVersion } = useLiveSync();
 
   const [donations, setDonations] = useState([]);
   const [donors, setDonors] = useState([]);
@@ -93,18 +95,18 @@ export default function Donations() {
     fetchDonations();
     fetchDonors();
     fetchCommittee();
-  }, [activeFestival, searchQuery, selectedPaymentMethod, selectedTypeFilter]);
+  }, [activeFestival, searchQuery, selectedPaymentMethod, selectedTypeFilter, syncVersion]);
 
   const fetchDonations = async () => {
     setLoading(true);
     try {
-      let url = `/donations/?`;
-      if (activeFestival) url += `festival=${activeFestival.id}&`;
-      if (searchQuery) url += `search=${encodeURIComponent(searchQuery)}&`;
-      if (selectedPaymentMethod) url += `payment_method=${selectedPaymentMethod}&`;
-      if (selectedTypeFilter) url += `donation_type=${selectedTypeFilter}&`;
+      const params = new URLSearchParams();
+      if (activeFestival) params.append('festival', activeFestival.id);
+      if (searchQuery.trim()) params.append('search', searchQuery.trim());
+      if (selectedPaymentMethod) params.append('payment_method', selectedPaymentMethod);
+      if (selectedTypeFilter) params.append('donation_type', selectedTypeFilter);
 
-      const res = await apiClient.get(url);
+      const res = await apiClient.get(`/donations/?${params.toString()}`);
       setDonations(res.data.results || res.data);
     } catch (err) {
       console.error('Error fetching donations:', err);
@@ -224,6 +226,7 @@ export default function Donations() {
     try {
       await apiClient.delete(`/donations/${id}/`);
       showToastSuccess(`✓ Record #${receiptNo || id} deleted.`);
+      notifyLiveUpdate();
       fetchDonations();
     } catch (err) {
       showToastError('Failed to delete donation.');
@@ -286,6 +289,7 @@ export default function Donations() {
         showToastSuccess(`✓ Entry saved! Receipt ${res.data.receipt?.receipt_number || ''} generated.`);
       }
 
+      notifyLiveUpdate();
       setIsModalOpen(false);
       fetchDonations();
       fetchDonors();

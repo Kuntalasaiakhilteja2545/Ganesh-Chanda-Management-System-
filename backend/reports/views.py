@@ -91,6 +91,13 @@ class DashboardView(APIView):
             festival_id=festival_id, status='CONFIRMED', donation_type='CHANDA'
         ).aggregate(total=Sum('amount', default=Decimal('0')), count=Count('id'))
 
+        annadhanam_agg = Donation.objects.filter(
+            festival_id=festival_id, status='CONFIRMED', donation_type='ANNADHANAM'
+        ).aggregate(total=Sum('amount', default=Decimal('0')), count=Count('id'))
+        annadhanam_total = annadhanam_agg['total']
+        annadhanam_count = annadhanam_agg['count']
+        meals_sponsored = int(annadhanam_total / Decimal('35')) if annadhanam_total > Decimal('0') else (annadhanam_count * 150)
+
         total_donations = donations_agg['total']
         total_expenses = expenses_agg['total']
         balance = total_donations - total_expenses
@@ -111,6 +118,9 @@ class DashboardView(APIView):
             'velam_paata_count': velam_paata_agg['count'],
             'chanda_total': str(chanda_agg['total']),
             'chanda_count': chanda_agg['count'],
+            'annadhanam_total': str(annadhanam_total),
+            'annadhanam_count': annadhanam_count,
+            'meals_sponsored': meals_sponsored,
             'today': {
                 'donations': str(today_donations['total']),
                 'donation_count': today_donations['count'],
@@ -332,6 +342,13 @@ class PublicDashboardView(APIView):
             .order_by('-total')
         )
 
+        annadhanam_agg = Donation.objects.filter(
+            festival=festival, status='CONFIRMED', donation_type='ANNADHANAM'
+        ).aggregate(total=Sum('amount', default=Decimal('0')), count=Count('id'))
+        annadhanam_total = annadhanam_agg['total']
+        annadhanam_count = annadhanam_agg['count']
+        meals_sponsored = int(annadhanam_total / Decimal('35')) if annadhanam_total > Decimal('0') else (annadhanam_count * 150)
+
         return Response({
             'festival': {
                 'id': festival.id,
@@ -342,14 +359,17 @@ class PublicDashboardView(APIView):
                 'location': festival.location,
                 'landmark': festival.landmark,
                 'year': festival.year,
-                # SECURITY: Do not expose UPI ID or QR code on public endpoint
-                # These are sensitive payment details that should only be available to authenticated users
             },
             'total_donations': str(total_donations),
             'total_expenses': str(total_expenses),
             'balance': str(total_donations - total_expenses),
             'donor_count': donor_count,
             'category_breakdown': category_breakdown,
+            'annadhanam': {
+                'total_amount': str(annadhanam_total),
+                'sponsor_count': annadhanam_count,
+                'meals_sponsored': meals_sponsored,
+            }
         })
 
 

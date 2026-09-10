@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useLiveSync } from '../context/LiveSyncContext';
 import apiClient from '../api/client';
 import {
   FileSpreadsheet,
@@ -15,6 +16,7 @@ import {
 export default function Reports() {
   const { activeFestival } = useAuth();
   const { t } = useLanguage();
+  const { syncVersion } = useLiveSync();
 
   const [tab, setTab] = useState('daily'); // 'daily' | 'monthly' | 'comparison'
   const [reportDate, setReportDate] = useState(new Date().toISOString().split('T')[0]);
@@ -30,13 +32,15 @@ export default function Reports() {
     if (tab === 'daily') fetchDailyReport();
     if (tab === 'monthly') fetchMonthlyReport();
     if (tab === 'comparison') fetchComparisonReport();
-  }, [tab, reportDate, reportMonth, activeFestival]);
+  }, [tab, reportDate, reportMonth, activeFestival, syncVersion]);
 
   const fetchDailyReport = async () => {
     setLoading(true);
     try {
-      const festivalParam = activeFestival ? `festival_id=${activeFestival.id}&` : '';
-      const res = await apiClient.get(`/reports/daily/?${festivalParam}date=${reportDate}`);
+      const params = new URLSearchParams();
+      if (activeFestival) params.append('festival_id', activeFestival.id);
+      params.append('date', reportDate);
+      const res = await apiClient.get(`/reports/daily/?${params.toString()}`);
       setDailyData(res.data);
     } catch (err) {
       console.error('Error loading daily report:', err);
@@ -48,8 +52,10 @@ export default function Reports() {
   const fetchMonthlyReport = async () => {
     setLoading(true);
     try {
-      const festivalParam = activeFestival ? `festival_id=${activeFestival.id}&` : '';
-      const res = await apiClient.get(`/reports/monthly/?${festivalParam}month=${reportMonth}`);
+      const params = new URLSearchParams();
+      if (activeFestival) params.append('festival_id', activeFestival.id);
+      params.append('month', reportMonth);
+      const res = await apiClient.get(`/reports/monthly/?${params.toString()}`);
       setMonthlyData(res.data);
     } catch (err) {
       console.error('Error loading monthly report:', err);
@@ -61,7 +67,10 @@ export default function Reports() {
   const fetchComparisonReport = async () => {
     setLoading(true);
     try {
-      const res = await apiClient.get(`/reports/comparison/?year1=${year1}&year2=${year2}`);
+      const params = new URLSearchParams();
+      params.append('year1', year1);
+      params.append('year2', year2);
+      const res = await apiClient.get(`/reports/comparison/?${params.toString()}`);
       setComparisonData(res.data);
     } catch (err) {
       console.error('Error loading comparison report:', err);
@@ -70,15 +79,27 @@ export default function Reports() {
     }
   };
 
-  const handleExportExcel = (type) => {
-    const festivalId = activeFestival ? activeFestival.id : 1;
-    const url = `/api/exports/${type}/?festival_id=${festivalId}`;
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `${type}_${festivalId}.xlsx`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+  const handleExportExcel = async (type) => {
+    try {
+      const festivalId = activeFestival ? activeFestival.id : 1;
+      const res = await apiClient.get(`/exports/${type}/?festival_id=${festivalId}`, {
+        responseType: 'blob',
+      });
+      const blob = new Blob([res.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${type}_festival_${festivalId}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(`Error exporting ${type} excel:`, err);
+      alert(`Could not export ${type} excel file.`);
+    }
   };
 
   const handleDownloadAuditPdf = async () => {
@@ -95,6 +116,7 @@ export default function Reports() {
       document.body.appendChild(link);
       link.click();
       link.remove();
+      window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Error downloading audit PDF:', err);
       alert('Could not download Audit Statement PDF. Please check server connection.');

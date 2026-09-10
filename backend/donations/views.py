@@ -24,7 +24,8 @@ N+1 PROBLEM EXPLAINED:
 """
 
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from accounts.permissions import IsCollectorOrAbove, IsTreasurerOrAbove, IsAdmin
 from common.constants import Roles
@@ -128,4 +129,47 @@ class DonationViewSet(ModelViewSet):
     def perform_destroy(self, instance):
         """Soft delete instead of hard delete."""
         instance.soft_delete()
+
+    @action(detail=False, methods=['get'], permission_classes=[AllowAny])
+    def auction_leaderboard(self, request):
+        """
+        GET /api/donations/auction-leaderboard/?festival_id=1
+        Returns sorted list of Velam Paata (auction) entries with donor info & payment status.
+        """
+        from rest_framework.decorators import action
+        from rest_framework.permissions import AllowAny
+        from rest_framework.response import Response
+
+        festival_id = request.query_params.get('festival_id')
+        if not festival_id:
+            from festivals.models import Festival
+            active_fest = Festival.objects.filter(is_active=True).first()
+            if not active_fest:
+                return Response([])
+            festival_id = active_fest.id
+
+        auctions = (
+            Donation.objects
+            .filter(festival_id=festival_id, donation_type='VELAM_PAATA', status='CONFIRMED')
+            .select_related('donor', 'receipt')
+            .order_by('-amount')
+        )
+
+        results = []
+        for a in auctions:
+            donor_name = a.donor.name if a.donor else 'Devotee'
+            results.append({
+                'id': a.id,
+                'donor_name': donor_name,
+                'donor_mobile': a.donor.mobile_number if a.donor else '',
+                'donor_address': a.donor.address if a.donor else '',
+                'auction_item': a.auction_item or 'మహా లడ్డు (Maha Laddu)',
+                'amount': str(a.amount),
+                'payment_method': a.get_payment_method_display(),
+                'donation_date': str(a.donation_date),
+                'receipt_number': a.receipt.receipt_number if hasattr(a, 'receipt') else f'#{a.id}',
+                'notes': a.notes or '',
+            })
+
+        return Response(results)
 

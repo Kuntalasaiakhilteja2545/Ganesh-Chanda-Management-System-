@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useLiveSync } from '../context/LiveSyncContext';
 import apiClient from '../api/client';
 import Modal from '../components/Modal';
 import { transliterateToTelugu } from '../utils/teluguTransliterate';
@@ -36,6 +37,7 @@ const DESIGNATIONS = [
 export default function Committee() {
   const { activeFestival, isTreasurer, isAdmin } = useAuth();
   const { lang, t } = useLanguage();
+  const { notifyLiveUpdate, syncVersion } = useLiveSync();
 
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -61,17 +63,17 @@ export default function Committee() {
 
   useEffect(() => {
     fetchMembers();
-  }, [activeFestival, search, selectedDesignation]);
+  }, [activeFestival, search, selectedDesignation, syncVersion]);
 
   const fetchMembers = async () => {
     setLoading(true);
     try {
-      let url = '/committee-members/?';
-      if (activeFestival) url += `festival=${activeFestival.id}&`;
-      if (search) url += `search=${encodeURIComponent(search)}&`;
-      if (selectedDesignation) url += `designation=${selectedDesignation}&`;
+      const params = new URLSearchParams();
+      if (activeFestival) params.append('festival', activeFestival.id);
+      if (search.trim()) params.append('search', search.trim());
+      if (selectedDesignation) params.append('designation', selectedDesignation);
 
-      const res = await apiClient.get(url);
+      const res = await apiClient.get(`/committee-members/?${params.toString()}`);
       setMembers(res.data.results || res.data);
     } catch (err) {
       console.error('Error loading committee members:', err);
@@ -110,6 +112,7 @@ export default function Committee() {
     }
     try {
       await apiClient.delete(`/committee-members/${id}/`);
+      notifyLiveUpdate();
       fetchMembers();
     } catch (err) {
       alert('Failed to delete member.');
@@ -205,6 +208,7 @@ export default function Committee() {
         await apiClient.post('/committee-members/', payload);
       }
 
+      notifyLiveUpdate();
       setIsModalOpen(false);
       fetchMembers();
     } catch (err) {

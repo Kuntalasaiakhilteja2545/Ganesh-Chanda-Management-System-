@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { SidebarProvider } from './context/SidebarContext';
 import { ToastProvider } from './context/ToastContext';
+import { LiveSyncProvider } from './context/LiveSyncContext';
 
 // Components
 import Layout from './components/Layout';
@@ -27,9 +28,10 @@ export default function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
-        <SidebarProvider>
-          <ToastProvider>
-            <BrowserRouter>
+        <LiveSyncProvider>
+          <SidebarProvider>
+            <ToastProvider>
+              <BrowserRouter>
               <Routes>
                 {/* Public Routes */}
                 <Route path="/login" element={<Login />} />
@@ -63,7 +65,8 @@ export default function App() {
             </BrowserRouter>
           </ToastProvider>
         </SidebarProvider>
-      </AuthProvider>
-    </LanguageProvider>
+      </LiveSyncProvider>
+    </AuthProvider>
+  </LanguageProvider>
   );
 }

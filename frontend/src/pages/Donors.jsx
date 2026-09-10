@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { useLiveSync } from '../context/LiveSyncContext';
 import apiClient from '../api/client';
 import Modal from '../components/Modal';
 import {
@@ -24,6 +25,7 @@ export default function Donors() {
   const { t, lang } = useLanguage();
   const { activeFestival } = useAuth();
   const { success: showToastSuccess, error: showToastError } = useToast();
+  const { notifyLiveUpdate, syncVersion } = useLiveSync();
 
   const [donors, setDonors] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -48,7 +50,7 @@ export default function Donors() {
 
   useEffect(() => {
     fetchDonors();
-  }, [search]);
+  }, [search, syncVersion]);
 
   useEffect(() => {
     const assoc = activeFestival?.association_name || 'Jai Hind Ganesh Youth Association';
@@ -62,8 +64,9 @@ export default function Donors() {
   const fetchDonors = async () => {
     setLoading(true);
     try {
-      const url = search ? `/donors/?search=${encodeURIComponent(search)}` : '/donors/';
-      const res = await apiClient.get(url);
+      const params = new URLSearchParams();
+      if (search.trim()) params.append('search', search.trim());
+      const res = await apiClient.get(`/donors/?${params.toString()}`);
       setDonors(res.data.results || res.data);
     } catch (err) {
       console.error('Error loading donors:', err);
@@ -99,6 +102,7 @@ export default function Donors() {
     try {
       await apiClient.delete(`/donors/${id}/`);
       showToastSuccess(`✓ Donor "${donorName}" removed.`);
+      notifyLiveUpdate();
       fetchDonors();
     } catch (err) {
       showToastError('Failed to delete donor. They may have active donations associated.');
@@ -125,6 +129,7 @@ export default function Donors() {
         await apiClient.post('/donors/', payload);
         showToastSuccess('✓ New devotee added.');
       }
+      notifyLiveUpdate();
       setIsModalOpen(false);
       fetchDonors();
     } catch (err) {

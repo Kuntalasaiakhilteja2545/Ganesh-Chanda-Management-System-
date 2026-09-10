@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { useLiveSync } from '../context/LiveSyncContext';
 import apiClient from '../api/client';
+import VelamLeaderboard from '../components/VelamLeaderboard';
 import {
   Languages,
   MapPin,
@@ -10,11 +12,14 @@ import {
   Building,
   CreditCard,
   CheckCircle2,
+  Utensils,
+  Sparkles,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function PublicPortal() {
   const { lang, toggleLanguage, t } = useLanguage();
+  const { syncVersion } = useLiveSync();
   const [data, setData] = useState(null);
   const [festival, setFestival] = useState(null);
   const [committee, setCommittee] = useState([]);
@@ -22,7 +27,7 @@ export default function PublicPortal() {
 
   useEffect(() => {
     fetchPublicData();
-  }, []);
+  }, [syncVersion]);
 
   const fetchPublicData = async () => {
     setLoading(true);
@@ -124,12 +129,12 @@ export default function PublicPortal() {
         </div>
 
         {/* Live Counters */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-5">
           <div className="bg-white p-6 rounded-3xl border border-amber-100 shadow-xs text-center">
             <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
               {t('totalDonations')}
             </p>
-            <h3 className="heading-font text-3xl font-black text-amber-700 mt-1">
+            <h3 className="heading-font text-2xl sm:text-3xl font-black text-amber-700 mt-1">
               {formatCurrency(data?.total_donations)}
             </h3>
             <p className="text-xs text-slate-500 mt-1">From {data?.donor_count || 0} Devotees 🙏</p>
@@ -139,7 +144,7 @@ export default function PublicPortal() {
             <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
               {t('totalExpenses')}
             </p>
-            <h3 className="heading-font text-3xl font-black text-rose-700 mt-1">
+            <h3 className="heading-font text-2xl sm:text-3xl font-black text-rose-700 mt-1">
               {formatCurrency(data?.total_expenses)}
             </h3>
             <p className="text-xs text-slate-500 mt-1">Pandal & Cultural Costs</p>
@@ -149,12 +154,29 @@ export default function PublicPortal() {
             <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
               {t('netBalance')}
             </p>
-            <h3 className="heading-font text-3xl font-black text-emerald-700 mt-1">
+            <h3 className="heading-font text-2xl sm:text-3xl font-black text-emerald-700 mt-1">
               {formatCurrency(data?.balance)}
             </h3>
             <p className="text-xs text-slate-500 mt-1">Remaining in Treasury</p>
           </div>
+
+          {/* Feature 4: Annadhanam Prasadam Meal Tracker Card */}
+          <div className="bg-gradient-to-br from-amber-50 to-orange-100/60 p-6 rounded-3xl border border-amber-300 shadow-xs text-center">
+            <p className="text-xs font-black uppercase tracking-wider text-amber-900 flex items-center justify-center gap-1">
+              <Utensils className="w-3.5 h-3.5 text-amber-700" />
+              <span>అన్నదానం (Annadhanam Feast)</span>
+            </p>
+            <h3 className="heading-font text-2xl sm:text-3xl font-black text-amber-950 mt-1">
+              {(data?.annadhanam?.meals_sponsored || 0).toLocaleString('en-IN')} Meals 🍲
+            </h3>
+            <p className="text-xs font-bold text-amber-800 mt-1">
+              {formatCurrency(data?.annadhanam?.total_amount || 0)} Sponsored
+            </p>
+          </div>
         </div>
+
+        {/* Feature 1: Velam Paata Live Leaderboard */}
+        <VelamLeaderboard activeFestival={festival} />
 
         {/* Online UPI Donation & Real QR Code Card */}
         {(festival?.qr_code_image || festival?.upi_id) && (

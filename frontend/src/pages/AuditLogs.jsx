@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { useLiveSync } from '../context/LiveSyncContext';
 import apiClient from '../api/client';
 import Modal from '../components/Modal';
 import {
@@ -24,6 +25,7 @@ import {
 
 export default function AuditLogs() {
   const { lang, t } = useLanguage();
+  const { syncVersion } = useLiveSync();
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -33,17 +35,17 @@ export default function AuditLogs() {
 
   useEffect(() => {
     fetchLogs();
-  }, [actionFilter, modelFilter, search]);
+  }, [actionFilter, modelFilter, search, syncVersion]);
 
   const fetchLogs = async () => {
     setLoading(true);
     try {
-      let url = '/audit-logs/?';
-      if (actionFilter) url += `action=${actionFilter}&`;
-      if (modelFilter) url += `model_name=${modelFilter}&`;
-      if (search) url += `search=${encodeURIComponent(search)}&`;
+      const params = new URLSearchParams();
+      if (actionFilter) params.append('action', actionFilter);
+      if (modelFilter) params.append('model_name', modelFilter);
+      if (search.trim()) params.append('search', search.trim());
 
-      const res = await apiClient.get(url);
+      const res = await apiClient.get(`/audit-logs/?${params.toString()}`);
       setLogs(res.data.results || res.data);
     } catch (err) {
       console.error('Error loading audit logs:', err);

@@ -1,7 +1,8 @@
-﻿import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
+import { useLiveSync } from '../context/LiveSyncContext';
 import apiClient from '../api/client';
 import Modal from '../components/Modal';
 import StatCard from '../components/StatCard';
@@ -28,6 +29,7 @@ export default function Planning() {
   const { activeFestival, isTreasurer } = useAuth();
   const { lang, t } = useLanguage();
   const { success: showToastSuccess, error: showToastError } = useToast();
+  const { notifyLiveUpdate, syncVersion } = useLiveSync();
 
   const [summary, setSummary] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -62,7 +64,7 @@ export default function Planning() {
   useEffect(() => {
     fetchPlanningData();
     fetchCategories();
-  }, [activeFestival]);
+  }, [activeFestival, syncVersion]);
 
   const fetchPlanningData = async () => {
     setLoading(true);
@@ -113,14 +115,16 @@ export default function Planning() {
     try {
       if (item.id) {
         await apiClient.delete(`/planning/${item.id}/`);
-        showToastSuccess(`âœ“ Removed budget for ${catName}.`);
+        showToastSuccess(`✓ Removed budget for ${catName}.`);
+        notifyLiveUpdate();
         fetchPlanningData();
       } else if (item.category_id && activeFestival) {
         const plansRes = await apiClient.get(`/planning/?festival=${activeFestival.id}&category=${item.category_id}`);
         const plans = plansRes.data.results || plansRes.data;
         if (plans.length > 0) {
           await apiClient.delete(`/planning/${plans[0].id}/`);
-          showToastSuccess(`âœ“ Removed budget for ${catName}.`);
+          showToastSuccess(`✓ Removed budget for ${catName}.`);
+          notifyLiveUpdate();
           fetchPlanningData();
         }
       }
@@ -166,11 +170,12 @@ export default function Planning() {
     try {
       if (editingItem?.id) {
         await apiClient.patch(`/planning/${editingItem.id}/`, payload);
-        showToastSuccess('âœ“ Budget updated successfully!');
+        showToastSuccess('✓ Budget updated successfully!');
       } else {
         await apiClient.post('/planning/', payload);
-        showToastSuccess('âœ“ Category budget saved!');
+        showToastSuccess('✓ Category budget saved!');
       }
+      notifyLiveUpdate();
       setIsModalOpen(false);
       await fetchPlanningData();
       await fetchCategories();
@@ -231,15 +236,13 @@ export default function Planning() {
             <span>{showExplanation ? 'Hide Guide' : 'How Planning Works'}</span>
           </button>
 
-          {isTreasurer && (
-            <button
-              onClick={handleOpenAdd}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-700 hover:bg-purple-800 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md shadow-purple-900/20 transition-all transform hover:-translate-y-0.5 cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              <span>+ Set Category Budget (à°¬à°¡à±à°œà±†à°Ÿà± à°¨à°¿à°°à±à°£à°¯à°¿à°‚à°šà±)</span>
-            </button>
-          )}
+          <button
+            onClick={handleOpenAdd}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-700 hover:bg-purple-800 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md shadow-purple-900/20 transition-all transform hover:-translate-y-0.5 cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>+ Set Category Budget (బడ్జెట్ నిర్ణయించు)</span>
+          </button>
         </div>
       </div>
 
@@ -424,26 +427,24 @@ export default function Planning() {
                         )}
                       </td>
                       <td className="py-4 px-6 text-right">
-                        {isTreasurer && (
-                          <div className="flex items-center justify-end gap-1.5">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => handleOpenEdit(item)}
+                            className="p-1.5 text-slate-400 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors cursor-pointer"
+                            title={p > 0 ? 'Edit Budget' : 'Set Budget'}
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+                          {p > 0 && (
                             <button
-                              onClick={() => handleOpenEdit(item)}
-                              className="p-1.5 text-slate-400 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors cursor-pointer"
-                              title={p > 0 ? 'Edit Budget' : 'Set Budget'}
+                              onClick={() => handleDeleteBudget(item)}
+                              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                              title="Remove Budget Plan"
                             >
-                              <Edit2 className="w-3.5 h-3.5" />
+                              <Trash2 className="w-3.5 h-3.5" />
                             </button>
-                            {p > 0 && (
-                              <button
-                                onClick={() => handleDeleteBudget(item)}
-                                className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                                title="Remove Budget Plan"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );
