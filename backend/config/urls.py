@@ -49,7 +49,7 @@ from donations.views import DonationViewSet
 from expenses.views import ExpenseViewSet, ExpenseCategoryViewSet
 from planning.views import PlannedExpenseViewSet
 from audit.views import AuditLogViewSet
-from common.views import health_check
+from common.views import health_check, root_view
 
 # =============================================================================
 # DEFAULT ROUTER
@@ -77,6 +77,9 @@ router.register('audit-logs', AuditLogViewSet, basename='audit-log')
 # URL PATTERNS
 # =============================================================================
 urlpatterns = [
+    # Root Welcome Endpoint
+    path('', root_view, name='root'),
+
     # Django Admin Panel
     path('admin/', admin.site.urls),
 

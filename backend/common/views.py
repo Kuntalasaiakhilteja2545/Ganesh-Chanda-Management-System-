@@ -13,3 +13,15 @@ def health_check(request):
     except Exception:
         db_status = "error"
     return JsonResponse({"status": "ok", "database": db_status})
+
+
+def root_view(request):
+    """
+    Root endpoint welcome view.
+    """
+    return JsonResponse({
+        "name": "Ganesh Chanda Management System API",
+        "status": "online",
+        "health": "/api/health/",
+        "docs": "/api/docs/"
+    })
