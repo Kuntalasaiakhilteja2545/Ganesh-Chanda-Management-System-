@@ -157,17 +157,24 @@ class DonationViewSet(ModelViewSet):
 
         results = []
         for a in auctions:
-            donor_name = a.donor.name if a.donor else 'Devotee'
+            donor_name = a.donor.name if a.donor else (a.notes or 'Devotee')
+            receipt_no = f'#{a.id}'
+            try:
+                if hasattr(a, 'receipt') and a.receipt:
+                    receipt_no = a.receipt.receipt_number
+            except Exception:
+                pass
+
             results.append({
                 'id': a.id,
                 'donor_name': donor_name,
                 'donor_mobile': a.donor.mobile_number if a.donor else '',
                 'donor_address': a.donor.address if a.donor else '',
                 'auction_item': a.auction_item or 'మహా లడ్డు (Maha Laddu)',
-                'amount': str(a.amount),
-                'payment_method': a.get_payment_method_display(),
-                'donation_date': str(a.donation_date),
-                'receipt_number': a.receipt.receipt_number if hasattr(a, 'receipt') else f'#{a.id}',
+                'amount': str(a.amount or 0),
+                'payment_method': a.get_payment_method_display() if hasattr(a, 'get_payment_method_display') else str(a.payment_method),
+                'donation_date': str(a.donation_date) if a.donation_date else '',
+                'receipt_number': receipt_no,
                 'notes': a.notes or '',
             })
 

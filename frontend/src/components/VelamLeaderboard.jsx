@@ -33,7 +33,8 @@ export default function VelamLeaderboard({ activeFestival }) {
     }).format(amt || 0);
   };
 
-  const getItemBadge = (item) => {
+  const getItemBadge = (itemStr) => {
+    const item = (itemStr || '').toString();
     if (item.includes('మహా లడ్డు') || item.toLowerCase().includes('maha')) {
       return { icon: '🟡', label: 'Maha Laddu (మహా లడ్డు)', color: 'bg-amber-100 text-amber-900 border-amber-300' };
     }
@@ -81,16 +82,16 @@ export default function VelamLeaderboard({ activeFestival }) {
           <div className="py-8 text-center text-amber-300/60 text-xs font-semibold">
             Loading auction standings...
           </div>
-        ) : auctions.length > 0 ? (
+        ) : Array.isArray(auctions) && auctions.length > 0 ? (
           auctions.map((item, idx) => {
-            const itemMeta = getItemBadge(item.auction_item);
+            const itemMeta = getItemBadge(item?.auction_item);
             const isTop1 = idx === 0;
             const isTop2 = idx === 1;
             const isTop3 = idx === 2;
 
             return (
               <div
-                key={item.id}
+                key={item?.id || idx}
                 className={`p-3.5 sm:p-4 rounded-2xl transition-all border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                   isTop1
                     ? 'bg-gradient-to-r from-amber-500/20 via-amber-600/10 to-orange-500/20 border-amber-400/60 shadow-lg'
@@ -116,17 +117,17 @@ export default function VelamLeaderboard({ activeFestival }) {
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-extrabold text-sm sm:text-base text-white tracking-wide">
-                        {item.donor_name}
+                        {item?.donor_name || 'Devotee'}
                       </span>
                       <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase border ${itemMeta.color}`}>
-                        {itemMeta.icon} {item.auction_item}
+                        {itemMeta.icon} {item?.auction_item || 'Sacred Item'}
                       </span>
                     </div>
 
                     <div className="flex items-center gap-3 text-[11px] text-amber-200/70 mt-1 font-medium">
-                      {item.donor_address && <span>📍 {item.donor_address}</span>}
-                      <span>🧾 Receipt {item.receipt_number}</span>
-                      <span>📅 {item.donation_date}</span>
+                      {item?.donor_address && <span>📍 {item.donor_address}</span>}
+                      <span>🧾 Receipt {item?.receipt_number || `#${item?.id}`}</span>
+                      {item?.donation_date && <span>📅 {item.donation_date}</span>}
                     </div>
                   </div>
                 </div>
@@ -137,7 +138,7 @@ export default function VelamLeaderboard({ activeFestival }) {
                     Winning Bid
                   </span>
                   <span className="text-lg sm:text-xl font-black text-amber-300 tracking-tight">
-                    {formatCurrency(item.amount)}
+                    {formatCurrency(item?.amount)}
                   </span>
                 </div>
               </div>
