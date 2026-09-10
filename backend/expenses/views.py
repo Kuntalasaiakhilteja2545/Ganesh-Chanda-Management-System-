@@ -6,7 +6,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 from rest_framework.response import Response
 
-from accounts.permissions import IsAdmin, IsTreasurerOrAbove, IsAdminOrReadOnly
+from accounts.permissions import IsAdmin, IsTreasurerOrAbove, IsAdminOrReadOnly, IsCollectorOrAbove
 from .models import ExpenseCategory, Expense
 from .serializers import ExpenseCategorySerializer, ExpenseSerializer, ExpenseCreateSerializer
 

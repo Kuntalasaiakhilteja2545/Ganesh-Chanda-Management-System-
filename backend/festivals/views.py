@@ -1,4 +1,5 @@
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
@@ -12,11 +13,19 @@ class FestivalViewSet(ModelViewSet):
     serializer_class = FestivalSerializer
 
     def get_permissions(self):
-        if self.action in ['list', 'retrieve']:
+        if self.action in ['list', 'retrieve', 'active']:
             return [AllowAny()]
         if self.action in ['create', 'update', 'partial_update']:
             return [IsCollectorOrAbove()]
         return [IsAdmin()]
+
+    @action(detail=False, methods=['get'], permission_classes=[AllowAny])
+    def active(self, request):
+        """GET /api/festivals/active/ -> returns current active festival"""
+        active_fest = Festival.objects.filter(is_active=True).first() or Festival.objects.first()
+        if not active_fest:
+            return Response({'message': 'No active festival found'}, status=404)
+        return Response(FestivalSerializer(active_fest).data)
 
 
 class CommitteeMemberViewSet(ModelViewSet):

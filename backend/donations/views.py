@@ -86,10 +86,8 @@ class DonationViewSet(ModelViewSet):
         return DonationSerializer
 
     def get_permissions(self):
-        """
-        Any committee member can add/view/edit donations.
-        Admin only can delete.
-        """
+        if self.action in ['auction_leaderboard']:
+            return [AllowAny()]
         if self.action in ['list', 'retrieve', 'create', 'update', 'partial_update']:
             return [IsCollectorOrAbove()]
         return [IsAdmin()]
@@ -130,7 +128,7 @@ class DonationViewSet(ModelViewSet):
         """Soft delete instead of hard delete."""
         instance.soft_delete()
 
-    @action(detail=False, methods=['get'], permission_classes=[AllowAny])
+    @action(detail=False, methods=['get'], url_path='auction-leaderboard', permission_classes=[AllowAny])
     def auction_leaderboard(self, request):
         """
         GET /api/donations/auction-leaderboard/?festival_id=1

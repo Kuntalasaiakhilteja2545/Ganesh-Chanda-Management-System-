@@ -40,7 +40,7 @@ export default function Planning() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
 
-  // Form State â€” category combobox
+  // Form State — category combobox
   const [categoryName, setCategoryName] = useState('');
   const [isCatDropdownOpen, setIsCatDropdownOpen] = useState(false);
   const catDropdownRef = useRef(null);
@@ -220,7 +220,7 @@ export default function Planning() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="heading-font text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-            <span>ðŸŽ¯ {t('planning')} & Budget Control</span>
+            <span>🎯 {t('planning')} & Budget Control</span>
           </h2>
           <p className="text-xs text-slate-500 mt-1 font-medium">
             Pre-festival budget caps, planned vs actual expenditure tracking, and deficit / surplus financial forecasting.
@@ -251,24 +251,24 @@ export default function Planning() {
         <div className="p-5 bg-gradient-to-r from-purple-50 via-indigo-50 to-pink-50 border border-purple-200 rounded-3xl space-y-3 animate-in fade-in duration-200 shadow-xs">
           <div className="flex items-center gap-2 text-purple-950 font-black text-sm">
             <Sparkles className="w-4 h-4 text-purple-700" />
-            <span>à°¬à°¡à±à°œà±†à°Ÿà± & à°ªà±à°°à°£à°¾à°³à°¿à°• (Budget & Planning) à°Žà°²à°¾ à°ªà°¨à°¿à°šà±‡à°¸à±à°¤à±à°‚à°¦à°¿? (How It Works):</span>
+            <span>బడ్జెట్ & ప్రణాళిక (Budget & Planning) ఎలా పనిచేస్తుంది? (How It Works):</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 text-xs text-purple-900">
             <div className="p-3.5 bg-white/80 rounded-2xl border border-purple-100 space-y-1">
               <span className="font-extrabold text-purple-950 flex items-center gap-1.5">
                 <Tag className="w-3.5 h-3.5 text-purple-600" />
-                1. Set Budget Ceiling (à°ªà°°à°¿à°®à°¿à°¤à±à°²à±):
+                1. Set Budget Ceiling (పరిమితులు):
               </span>
               <p className="text-slate-600 leading-relaxed">
-                Before festival starts, define planned limits for each category (e.g. â‚¹25,000 for Idol, â‚¹20,000 for Sound, â‚¹15,000 for Lighting).
+                Before festival starts, define planned limits for each category (e.g. ₹25,000 for Idol, ₹20,000 for Sound, ₹15,000 for Lighting).
               </p>
             </div>
 
             <div className="p-3.5 bg-white/80 rounded-2xl border border-purple-100 space-y-1">
               <span className="font-extrabold text-purple-950 flex items-center gap-1.5">
                 <Calculator className="w-3.5 h-3.5 text-indigo-600" />
-                2. Live Spend Tracking (à°¨à°¿à°œà°®à±ˆà°¨ à°–à°°à±à°šà±):
+                2. Live Spend Tracking (నిజమైన ఖర్చు):
               </span>
               <p className="text-slate-600 leading-relaxed">
                 Whenever expenses or advances are entered in the Expenses tab, the system compares actual spent against planned budget in real-time.
@@ -278,7 +278,7 @@ export default function Planning() {
             <div className="p-3.5 bg-white/80 rounded-2xl border border-purple-100 space-y-1">
               <span className="font-extrabold text-purple-950 flex items-center gap-1.5">
                 <Wallet className="w-3.5 h-3.5 text-pink-600" />
-                3. Deficit Warning (à°²à±‹à°Ÿà± à°¹à±†à°šà±à°šà°°à°¿à°•):
+                3. Deficit Warning (లోటు హెచ్చరిక):
               </span>
               <p className="text-slate-600 leading-relaxed">
                 Shows Projected Balance = (Total Chanda Collections) - (Total Planned Budget). Alerts the committee if more chanda is needed!
@@ -293,7 +293,7 @@ export default function Planning() {
         <div className="p-4 bg-rose-50 border-2 border-rose-300 rounded-3xl flex items-center gap-3 text-rose-900 text-sm font-semibold shadow-xs animate-in fade-in">
           <AlertTriangle className="w-7 h-7 text-rose-600 shrink-0 animate-bounce" />
           <div>
-            <p className="font-black text-base text-rose-950">âš ï¸ à°¬à°¡à±à°œà±†à°Ÿà± à°²à±‹à°Ÿà± à°¹à±†à°šà±à°šà°°à°¿à°• (Budget Deficit Alert)!</p>
+            <p className="font-black text-base text-rose-950">⚠️ బడ్జెట్ లోటు హెచ్చరిక (Budget Deficit Alert)!</p>
             <p className="text-xs text-rose-800 font-medium mt-0.5">
               Total planned festival budget exceeds the current available chanda collections. Additional collections needed: <strong>{formatCurrency(Math.abs(parseFloat(summary?.projected_balance || 0)))}</strong>
             </p>
@@ -327,7 +327,7 @@ export default function Planning() {
         <StatCard
           title={t('projectedBalance')}
           value={formatCurrency(summary?.projected_balance)}
-          subtitle={isDeficit ? 'ðŸ”´ Deficit forecast (More chanda needed)' : 'ðŸŸ¢ Safe budget surplus'}
+          subtitle={isDeficit ? '🔴 Deficit forecast (More chanda needed)' : '🟢 Safe budget surplus'}
           icon={Wallet}
           color={isDeficit ? 'rose' : 'emerald'}
         />
@@ -406,7 +406,7 @@ export default function Planning() {
                                 {pct}% utilized
                               </span>
                               {isOverBudget && (
-                                <span className="text-red-600 font-black">OVER BUDGET âš ï¸</span>
+                                <span className="text-red-600 font-black">OVER BUDGET ⚠️</span>
                               )}
                             </div>
                             <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200/60">
@@ -464,7 +464,7 @@ export default function Planning() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={editingItem?.planned && parseFloat(editingItem.planned) > 0 ? 'âœï¸ Edit Category Budget (à°¬à°¡à±à°œà±†à°Ÿà± à°¸à°µà°°à°¿à°‚à°šà±)' : 'ðŸŽ¯ Set Category Budget (à°¬à°¡à±à°œà±†à°Ÿà± à°¨à°¿à°°à±à°£à°¯à°¿à°‚à°šà±)'}
+        title={editingItem?.planned && parseFloat(editingItem.planned) > 0 ? '✏️ Edit Category Budget (బడ్జెట్ సవరించు)' : '🎯 Set Category Budget (బడ్జెట్ నిర్ణయించు)'}
         maxWidth="max-w-md"
       >
         <form onSubmit={handleSaveBudget} className="space-y-4">
@@ -475,11 +475,11 @@ export default function Planning() {
             </div>
           )}
 
-          {/* Category Combobox â€” supports typing custom names */}
+          {/* Category Combobox — supports typing custom names */}
           <div ref={catDropdownRef} className="relative">
             <label className="block text-xs font-extrabold uppercase text-slate-700 mb-1.5 flex items-center gap-1.5">
               <Tag className="w-3.5 h-3.5 text-purple-600" />
-              <span>Expense Category (à°–à°°à±à°šà± à°µà°¿à°­à°¾à°—à°‚) *</span>
+              <span>Expense Category (ఖర్చు విభాగం) *</span>
             </label>
 
             <div className="relative">
@@ -487,7 +487,7 @@ export default function Planning() {
                 type="text"
                 required
                 autoComplete="off"
-                placeholder="e.g. Ganesh Idol (à°µà°¿à°—à±à°°à°¹à°‚), Sound, Lighting, Tent..."
+                placeholder="e.g. Ganesh Idol (విగ్రహం), Sound, Lighting, Tent..."
                 value={categoryName}
                 onFocus={() => setIsCatDropdownOpen(true)}
                 onChange={(e) => {
@@ -550,10 +550,10 @@ export default function Planning() {
 
           <div>
             <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-              Planned Budget Amount (à°•à±‡à°Ÿà°¾à°¯à°¿à°‚à°šà°¿à°¨ à°¬à°¡à±à°œà±†à°Ÿà± à°®à±Šà°¤à±à°¤à°‚ â‚¹) *
+              Planned Budget Amount (కేటాయించిన బడ్జెట్ మొత్తం ₹) *
             </label>
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 font-bold">â‚¹</span>
+              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 font-bold">₹</span>
               <input
                 type="number"
                 step="0.01"
@@ -569,7 +569,7 @@ export default function Planning() {
 
           <div>
             <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-              Notes / Description (à°µà°¿à°µà°°à°¾à°²à± / à°—à°®à°¨à°¿à°•à°²à±)
+              Notes / Description (వివరాలు / గమనికలు)
             </label>
             <input
               type="text"
@@ -593,7 +593,7 @@ export default function Planning() {
               disabled={isSubmitting}
               className="px-6 py-2.5 bg-purple-700 hover:bg-purple-800 text-white font-extrabold text-xs rounded-xl shadow-md shadow-purple-900/20 transition-all cursor-pointer disabled:opacity-50"
             >
-              {isSubmitting ? t('loading') : 'Save Budget (à°¬à°¡à±à°œà±†à°Ÿà± à°¦à°¾à°šà±)'}
+              {isSubmitting ? t('loading') : 'Save Budget (బడ్జెట్ దాచు)'}
             </button>
           </div>
         </form>

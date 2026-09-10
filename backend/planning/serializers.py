@@ -39,6 +39,7 @@ class PlannedExpenseCreateSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['category'].required = False
+        self.validators = []  # Allow view create() to handle upsert for existing (festival, category)
 
     def validate(self, attrs):
         if not attrs.get('festival'):

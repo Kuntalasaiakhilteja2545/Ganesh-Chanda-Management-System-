@@ -46,7 +46,7 @@ class PlannedExpenseViewSet(ModelViewSet):
         serializer.is_valid(raise_exception=True)
 
         data = dict(serializer.validated_data)
-        festival = data['festival']
+        festival = data.pop('festival')
         category = data.pop('category', None)
         category_name = data.pop('category_name', '').strip()
 
