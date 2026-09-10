@@ -124,24 +124,41 @@ export default function Settings() {
 
   const handleSaveSettings = async (e) => {
     e.preventDefault();
-    if (!activeFestival) return;
     setLoading(true);
     setError('');
     setSavedSuccess(false);
 
     try {
-      const res = await apiClient.patch(`/festivals/${activeFestival.id}/`, {
-        name,
-        name_telugu: nameTelugu,
-        association_name: associationName,
-        association_name_telugu: associationNameTelugu,
-        location,
-        landmark,
-        upi_id: upiId,
-        qr_code_image: qrCodeImage,
-        start_date: startDate || null,
-        end_date: endDate || null,
-      });
+      let res;
+      if (activeFestival) {
+        res = await apiClient.patch(`/festivals/${activeFestival.id}/`, {
+          name: name || `Ganesh Chanda ${new Date().getFullYear()}`,
+          name_telugu: nameTelugu,
+          association_name: associationName || 'Ganesh Youth Association',
+          association_name_telugu: associationNameTelugu,
+          location,
+          landmark,
+          upi_id: upiId,
+          qr_code_image: qrCodeImage,
+          start_date: startDate || null,
+          end_date: endDate || null,
+        });
+      } else {
+        res = await apiClient.post('/festivals/', {
+          name: name || `Ganesh Chanda ${new Date().getFullYear()}`,
+          name_telugu: nameTelugu,
+          association_name: associationName || 'Ganesh Youth Association',
+          association_name_telugu: associationNameTelugu,
+          year: new Date().getFullYear(),
+          location,
+          landmark,
+          upi_id: upiId,
+          qr_code_image: qrCodeImage,
+          start_date: startDate || null,
+          end_date: endDate || null,
+          is_active: true,
+        });
+      }
 
       setActiveFestival(res.data);
       setSavedSuccess(true);
@@ -149,7 +166,7 @@ export default function Settings() {
     } catch (err) {
       setError(
         err.response?.data?.message ||
-        JSON.stringify(err.response?.data) ||
+        (err.response?.data ? JSON.stringify(err.response.data) : null) ||
         'Failed to save settings.'
       );
     } finally {

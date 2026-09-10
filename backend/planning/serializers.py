@@ -18,6 +18,11 @@ class PlannedExpenseSerializer(serializers.ModelSerializer):
 
 class PlannedExpenseCreateSerializer(serializers.ModelSerializer):
     """Input serializer for creating planned expenses with category_name support."""
+    festival = serializers.PrimaryKeyRelatedField(
+        queryset=PlannedExpense._meta.get_field('festival').remote_field.model.objects.all(),
+        required=False,
+        allow_null=True
+    )
     category = serializers.PrimaryKeyRelatedField(
         queryset=ExpenseCategory.objects.filter(is_active=True),
         required=False,
@@ -33,15 +38,24 @@ class PlannedExpenseCreateSerializer(serializers.ModelSerializer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Ensure category field is not required (model has blank=False but we handle fallback in view)
         self.fields['category'].required = False
 
     def validate(self, attrs):
-        """Pass through category data — view handles lookup/auto-creation."""
+        if not attrs.get('festival'):
+            from festivals.models import Festival
+            from datetime import datetime
+            active = Festival.objects.filter(is_active=True).first() or Festival.objects.first()
+            if not active:
+                active = Festival.objects.create(
+                    name=f"Ganesh Chanda {datetime.now().year}",
+                    association_name="Ganesh Youth Association",
+                    year=datetime.now().year,
+                    is_active=True
+                )
+            attrs['festival'] = active
         return attrs
 
     def validate_category(self, value):
-        """Override to allow category to be optional."""
         if value and not value.is_active:
             raise serializers.ValidationError('Category is not active.')
         return value

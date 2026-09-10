@@ -9,7 +9,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 
-from accounts.permissions import IsTreasurerOrAbove
+from accounts.permissions import IsCollectorOrAbove, IsTreasurerOrAbove
 from donations.models import Donation
 from expenses.models import Expense, ExpenseCategory
 from festivals.models import Festival
@@ -26,7 +26,7 @@ class PlannedExpenseViewSet(ModelViewSet):
         GET/PATCH  /api/planning/{id}/
     """
     serializer_class = PlannedExpenseSerializer
-    permission_classes = [IsTreasurerOrAbove]
+    permission_classes = [IsCollectorOrAbove]
     filterset_fields = ['festival', 'category']
 
     def get_queryset(self):

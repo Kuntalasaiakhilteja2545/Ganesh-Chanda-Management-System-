@@ -56,6 +56,11 @@ class ExpenseSerializer(serializers.ModelSerializer):
 
 class ExpenseCreateSerializer(serializers.ModelSerializer):
     """Input serializer for creating expenses."""
+    festival = serializers.PrimaryKeyRelatedField(
+        queryset=Expense._meta.get_field('festival').remote_field.model.objects.all(),
+        required=False,
+        allow_null=True
+    )
     category = serializers.PrimaryKeyRelatedField(
         queryset=ExpenseCategory.objects.filter(is_active=True),
         required=False,
@@ -79,5 +84,16 @@ class ExpenseCreateSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, attrs):
-        """Pass through category data — view handles lookup/auto-creation."""
+        if not attrs.get('festival'):
+            from festivals.models import Festival
+            from datetime import datetime
+            active = Festival.objects.filter(is_active=True).first() or Festival.objects.first()
+            if not active:
+                active = Festival.objects.create(
+                    name=f"Ganesh Chanda {datetime.now().year}",
+                    association_name="Ganesh Youth Association",
+                    year=datetime.now().year,
+                    is_active=True
+                )
+            attrs['festival'] = active
         return attrs

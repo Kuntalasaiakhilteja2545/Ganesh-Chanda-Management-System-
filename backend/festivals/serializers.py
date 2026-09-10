@@ -1,8 +1,14 @@
+from datetime import datetime
 from rest_framework import serializers
 from .models import Festival, CommitteeMember
 
 
 class CommitteeMemberSerializer(serializers.ModelSerializer):
+    festival = serializers.PrimaryKeyRelatedField(
+        queryset=Festival.objects.all(),
+        required=False,
+        allow_null=True
+    )
     festival_name = serializers.CharField(source='festival.name', read_only=True)
     designation_display = serializers.CharField(source='get_designation_display', read_only=True)
 
@@ -26,6 +32,19 @@ class CommitteeMemberSerializer(serializers.ModelSerializer):
             'updated_at',
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
+
+    def validate(self, attrs):
+        if not attrs.get('festival'):
+            active = Festival.objects.filter(is_active=True).first() or Festival.objects.first()
+            if not active:
+                active = Festival.objects.create(
+                    name=f"Ganesh Chanda {datetime.now().year}",
+                    association_name="Ganesh Youth Association",
+                    year=datetime.now().year,
+                    is_active=True
+                )
+            attrs['festival'] = active
+        return attrs
 
 
 class FestivalSerializer(serializers.ModelSerializer):

@@ -2,7 +2,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
-from accounts.permissions import IsAdmin, IsTreasurerOrAbove
+from accounts.permissions import IsAdmin, IsCollectorOrAbove, IsTreasurerOrAbove
 from .models import Festival, CommitteeMember
 from .serializers import FestivalSerializer, CommitteeMemberSerializer
 
@@ -14,6 +14,8 @@ class FestivalViewSet(ModelViewSet):
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
             return [AllowAny()]
+        if self.action in ['create', 'update', 'partial_update']:
+            return [IsCollectorOrAbove()]
         return [IsAdmin()]
 
 
@@ -29,4 +31,4 @@ class CommitteeMemberViewSet(ModelViewSet):
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
             return [AllowAny()]
-        return [IsTreasurerOrAbove()]
+        return [IsCollectorOrAbove()]

@@ -240,15 +240,13 @@ export default function Committee() {
           </p>
         </div>
 
-        {isTreasurer && (
-          <button
-            onClick={handleOpenAddModal}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold text-sm rounded-2xl shadow-lg shadow-amber-600/25 transition-all transform hover:-translate-y-0.5 cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            <span>{t('addMember')}</span>
-          </button>
-        )}
+        <button
+          onClick={handleOpenAddModal}
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold text-sm rounded-2xl shadow-lg shadow-amber-600/25 transition-all transform hover:-translate-y-0.5 cursor-pointer"
+        >
+          <Plus className="w-4 h-4" />
+          <span>{t('addMember')}</span>
+        </button>
       </div>
 
       {/* Filters Bar */}
@@ -353,24 +351,22 @@ export default function Committee() {
                 {/* Card Actions (Edit & Delete) */}
                 <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between">
                   <span className="text-[10px] text-slate-400 font-mono font-bold">Order #{m.display_order}</span>
-                  {isTreasurer && (
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        onClick={() => handleOpenEditModal(m)}
-                        className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors cursor-pointer"
-                        title="Edit Member"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteMember(m.id, m.name)}
-                        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                        title="Delete Member"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => handleOpenEditModal(m)}
+                      className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors cursor-pointer"
+                      title="Edit Member"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteMember(m.id, m.name)}
+                      className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                      title="Delete Member"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             );

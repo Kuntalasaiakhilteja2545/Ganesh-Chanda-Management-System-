@@ -49,58 +49,12 @@ export default function App() {
                   <Route path="donations" element={<Donations />} />
                   <Route path="donors" element={<Donors />} />
                   <Route path="committee" element={<Committee />} />
-
-                  {/* Treasurer & Admin Only */}
-                  <Route
-                    path="expenses"
-                    element={
-                      <ProtectedRoute requiredRole="TREASURER">
-                        <Expenses />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="planning"
-                    element={
-                      <ProtectedRoute requiredRole="TREASURER">
-                        <Planning />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="reports"
-                    element={
-                      <ProtectedRoute requiredRole="TREASURER">
-                        <Reports />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  {/* Admin Only */}
-                  <Route
-                    path="festivals"
-                    element={
-                      <ProtectedRoute requiredRole="ADMIN">
-                        <Festivals />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="settings"
-                    element={
-                      <ProtectedRoute requiredRole="ADMIN">
-                        <Settings />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="audit-logs"
-                    element={
-                      <ProtectedRoute requiredRole="ADMIN">
-                        <AuditLogs />
-                      </ProtectedRoute>
-                    }
-                  />
+                  <Route path="expenses" element={<Expenses />} />
+                  <Route path="planning" element={<Planning />} />
+                  <Route path="reports" element={<Reports />} />
+                  <Route path="festivals" element={<Festivals />} />
+                  <Route path="settings" element={<Settings />} />
+                  <Route path="audit-logs" element={<AuditLogs />} />
                 </Route>
 
                 {/* Catch-all redirect */}

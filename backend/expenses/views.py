@@ -55,10 +55,8 @@ class ExpenseViewSet(ModelViewSet):
         return ExpenseSerializer
 
     def get_permissions(self):
-        if self.action in ['list', 'retrieve']:
-            return [IsTreasurerOrAbove()]
-        if self.action in ['create', 'update', 'partial_update']:
-            return [IsTreasurerOrAbove()]
+        if self.action in ['list', 'retrieve', 'create', 'update', 'partial_update']:
+            return [IsCollectorOrAbove()]
         return [IsAdmin()]
 
     def create(self, request, *args, **kwargs):

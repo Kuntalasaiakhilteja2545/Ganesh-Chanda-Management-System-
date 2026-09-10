@@ -32,12 +32,12 @@ export default function Sidebar() {
     { to: '/donations', label: t('donations'), icon: HandCoins, show: true },
     { to: '/donors', label: t('donors'), icon: Users, show: true },
     { to: '/committee', label: t('committee'), icon: Users2, show: true },
-    { to: '/expenses', label: t('expenses'), icon: Receipt, show: isTreasurer },
-    { to: '/planning', label: t('planning'), icon: PieChart, show: isTreasurer },
-    { to: '/reports', label: t('reports'), icon: FileSpreadsheet, show: isTreasurer },
-    { to: '/festivals', label: t('festivals'), icon: Calendar, show: isAdmin },
-    { to: '/settings', label: t('settings'), icon: Settings, show: isAdmin },
-    { to: '/audit-logs', label: t('auditLogs'), icon: ShieldAlert, show: isAdmin },
+    { to: '/expenses', label: t('expenses'), icon: Receipt, show: true },
+    { to: '/planning', label: t('planning'), icon: PieChart, show: true },
+    { to: '/reports', label: t('reports'), icon: FileSpreadsheet, show: true },
+    { to: '/festivals', label: t('festivals'), icon: Calendar, show: true },
+    { to: '/settings', label: t('settings'), icon: Settings, show: true },
+    { to: '/audit-logs', label: t('auditLogs'), icon: ShieldAlert, show: true },
   ];
 
   const sidebarContent = (

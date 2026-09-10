@@ -83,6 +83,11 @@ class DonationCreateSerializer(serializers.ModelSerializer):
     INPUT serializer — used for POST (creating donations).
     Supports either donor ID or direct donor_name, donor_mobile, donor_address.
     """
+    festival = serializers.PrimaryKeyRelatedField(
+        queryset=Donation._meta.get_field('festival').remote_field.model.objects.all(),
+        required=False,
+        allow_null=True
+    )
     donor = serializers.PrimaryKeyRelatedField(
         queryset=Donation._meta.get_field('donor').remote_field.model.objects.all(),
         required=False,
@@ -112,20 +117,23 @@ class DonationCreateSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, data):
-        """
-        Cross-field validation.
-        
-        WHY validate() and not validate_<field>():
-            We need to check transaction_id BASED ON payment_method.
-            This requires access to multiple fields → use validate().
-        """
+        if not data.get('festival'):
+            from festivals.models import Festival
+            from datetime import datetime
+            active = Festival.objects.filter(is_active=True).first() or Festival.objects.first()
+            if not active:
+                active = Festival.objects.create(
+                    name=f"Ganesh Chanda {datetime.now().year}",
+                    association_name="Ganesh Youth Association",
+                    year=datetime.now().year,
+                    is_active=True
+                )
+            data['festival'] = active
+
         payment_method = data.get('payment_method')
         transaction_id = data.get('transaction_id', '')
 
-        # Warn (not error) if digital payment has no transaction ID
         if payment_method in PaymentMethods.DIGITAL_METHODS and not transaction_id:
-            # We don't raise an error because the committee member might
-            # add it later. But we could add a warning field.
             pass
 
         return data

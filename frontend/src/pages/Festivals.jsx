@@ -152,15 +152,13 @@ export default function Festivals() {
           </p>
         </div>
 
-        {isAdmin && (
-          <button
-            onClick={handleOpenAdd}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md shadow-amber-600/20 transition-all transform hover:-translate-y-0.5 cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add Festival Year</span>
-          </button>
-        )}
+        <button
+          onClick={handleOpenAdd}
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md shadow-amber-600/20 transition-all transform hover:-translate-y-0.5 cursor-pointer"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Add Festival Year</span>
+        </button>
       </div>
 
       {/* Festivals Grid */}
@@ -220,26 +218,24 @@ export default function Festivals() {
                   )}
                 </div>
 
-                {isAdmin && (
-                  <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => handleOpenEdit(f)}
+                    className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors cursor-pointer"
+                    title="Edit Festival"
+                  >
+                    <Edit2 className="w-3.5 h-3.5" />
+                  </button>
+                  {!f.is_active && (
                     <button
-                      onClick={() => handleOpenEdit(f)}
-                      className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors cursor-pointer"
-                      title="Edit Festival"
+                      onClick={() => handleDeleteFestival(f.id, f.name)}
+                      className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                      title="Delete Festival"
                     >
-                      <Edit2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
-                    {!f.is_active && (
-                      <button
-                        onClick={() => handleDeleteFestival(f.id, f.name)}
-                        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                        title="Delete Festival"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
           ))}

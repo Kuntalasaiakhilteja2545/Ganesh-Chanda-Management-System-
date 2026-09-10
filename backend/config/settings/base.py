@@ -263,10 +263,10 @@ SIMPLE_JWT = {
 # Without this, React (localhost:5173) cannot call Django (localhost:8000)
 # because browsers block cross-origin requests by default.
 # SECURITY: Default to False in production; override to True in development.py
-CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', default=False, cast=bool)
+CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', default=True, cast=bool)
 CORS_ALLOWED_ORIGINS = config(
     'CORS_ALLOWED_ORIGINS',
-    default='http://localhost:5173,http://localhost:3000',
+    default='https://ganesh-chanda-management.netlify.app,http://localhost:5173,http://localhost:3000',
     cast=Csv()
 )
 

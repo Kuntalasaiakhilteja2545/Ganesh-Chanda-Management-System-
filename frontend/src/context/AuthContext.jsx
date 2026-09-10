@@ -25,20 +25,40 @@ export function AuthProvider({ children }) {
         }
       }
       // Load active festival
-      try {
-        const festRes = await apiClient.get('/festivals/');
-        const festivals = festRes.data.results || festRes.data;
-        const active = festivals.find((f) => f.is_active) || festivals[0] || null;
-        setActiveFestival(active);
-      } catch (err) {
-        console.error('Error loading festivals:', err);
-      }
+      await loadOrCreateActiveFestival();
 
       setLoading(false);
     };
 
     initAuth();
   }, []);
+
+  const loadOrCreateActiveFestival = async () => {
+    try {
+      const festRes = await apiClient.get('/festivals/');
+      let festivals = festRes.data.results || festRes.data;
+      if (!festivals || festivals.length === 0) {
+        try {
+          const createRes = await apiClient.post('/festivals/', {
+            name: `Ganesh Chanda ${new Date().getFullYear()}`,
+            name_telugu: `గణేష్ చందా ${new Date().getFullYear()}`,
+            association_name: 'Ganesh Youth Association',
+            association_name_telugu: 'గణేష్ యువజన సంఘం',
+            year: new Date().getFullYear(),
+            is_active: true,
+          });
+          setActiveFestival(createRes.data);
+        } catch (cErr) {
+          console.error('Error auto-creating initial festival:', cErr);
+        }
+      } else {
+        const active = festivals.find((f) => f.is_active) || festivals[0] || null;
+        setActiveFestival(active);
+      }
+    } catch (err) {
+      console.error('Error loading festivals:', err);
+    }
+  };
 
   const login = async (username, password) => {
     const res = await apiClient.post('/auth/login/', { username, password });
@@ -49,15 +69,7 @@ export function AuthProvider({ children }) {
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
 
-    // Refresh active festival
-    try {
-      const festRes = await apiClient.get('/festivals/');
-      const festivals = festRes.data.results || festRes.data;
-      const active = festivals.find((f) => f.is_active) || festivals[0] || null;
-      setActiveFestival(active);
-    } catch (err) {
-      console.error(err);
-    }
+    await loadOrCreateActiveFestival();
 
     return userData;
   };
@@ -86,14 +98,7 @@ export function AuthProvider({ children }) {
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
 
-    try {
-      const festRes = await apiClient.get('/festivals/');
-      const festivals = festRes.data.results || festRes.data;
-      const active = festivals.find((f) => f.is_active) || festivals[0] || null;
-      setActiveFestival(active);
-    } catch (err) {
-      console.error(err);
-    }
+    await loadOrCreateActiveFestival();
 
     return userData;
   };

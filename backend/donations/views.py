@@ -86,13 +86,11 @@ class DonationViewSet(ModelViewSet):
 
     def get_permissions(self):
         """
-        Any committee member can add/view donations.
-        Treasurer+ can edit. Admin only can delete.
+        Any committee member can add/view/edit donations.
+        Admin only can delete.
         """
-        if self.action in ['list', 'retrieve', 'create']:
+        if self.action in ['list', 'retrieve', 'create', 'update', 'partial_update']:
             return [IsCollectorOrAbove()]
-        if self.action in ['update', 'partial_update']:
-            return [IsTreasurerOrAbove()]
         return [IsAdmin()]
 
     def create(self, request, *args, **kwargs):
