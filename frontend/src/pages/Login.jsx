@@ -14,7 +14,6 @@ import {
   ArrowRight,
   Eye,
   EyeOff,
-  FastForward,
   Sparkles,
   ShieldCheck,
   Phone,
@@ -57,9 +56,8 @@ export default function Login() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
 
-  // Cinematic timeline step: 0 = Dark, 1 = Temple & Ganesha Reveal, 2 = Title, 3 = Login Ready
-  const [step, setStep] = useState(0);
-  const [skipped, setSkipped] = useState(false);
+  // Cinematic step: set to 3 so Ganesha image, title, and login card are immediately visible on load
+  const [step, setStep] = useState(3);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   const { login, register, forgotUsername: forgotUsernameApi, resetPassword } = useAuth();
@@ -67,32 +65,9 @@ export default function Login() {
   const { success: showToastSuccess } = useToast();
   const navigate = useNavigate();
 
-  // Cinematic Sequence Timers
-  useEffect(() => {
-    if (skipped) {
-      setStep(3);
-      return;
-    }
-
-    const t1 = setTimeout(() => setStep(1), 500);   // Ganesha & Temple light up
-    const t2 = setTimeout(() => setStep(2), 1800);  // Title appears
-    const t3 = setTimeout(() => setStep(3), 2800);  // Login Card ready
-
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-    };
-  }, [skipped]);
-
   // Track mouse coordinates for 3D parallax
   const handleMouseMove = (e) => {
     setMousePos({ x: e.clientX, y: e.clientY });
-  };
-
-  const handleSkip = () => {
-    setSkipped(true);
-    setStep(3);
   };
 
   // Reset forgot-flow state when switching modes
@@ -548,18 +523,8 @@ export default function Login() {
       {/* 3. Golden Dust & Temple Particles at 60fps */}
       <GoldenParticlesCanvas count={70} active={true} />
 
-      {/* 4. Top Header Controls: Language Toggle & Skip Intro */}
+      {/* 4. Top Header Controls: Language Toggle */}
       <div className="absolute top-4 right-4 sm:top-6 sm:right-8 z-50 flex items-center gap-2.5">
-        {!isCardVisible && (
-          <button
-            onClick={handleSkip}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-amber-300/90 hover:text-amber-100 bg-black/60 hover:bg-black/80 border border-amber-500/30 rounded-xl backdrop-blur-md transition-all cursor-pointer shadow-lg"
-          >
-            <span>Skip Intro</span>
-            <FastForward className="w-3.5 h-3.5" />
-          </button>
-        )}
-
         <button
           onClick={toggleLanguage}
           className="inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold text-amber-300 bg-black/70 hover:bg-black/90 border border-amber-500/35 rounded-xl backdrop-blur-md transition-all cursor-pointer shadow-xl hover:scale-105"
@@ -579,19 +544,15 @@ export default function Login() {
             mousePos={mousePos}
           />
 
-          {/* Cinematic Title & Branding */}
-          <div
-            className={`mt-4 space-y-1.5 transition-all duration-700 transform ${
-              isTitleVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-            }`}
-          >
+          {/* Title & Branding */}
+          <div className="mt-4 space-y-1.5">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-amber-950/80 border border-amber-500/30 rounded-full text-xs font-bold text-amber-300 shadow-md">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span>{lang === 'te' ? 'శ్రీ వీరభద్ర స్వామి యూత్' : 'Veerabadhra Swamy Youth'}</span>
+              <span>{lang === 'te' ? 'గణేష్ చందా మేనేజ్‌మెంట్ సిస్టమ్' : 'Ganesh Chanda Management System'}</span>
             </div>
 
             <h1 className="heading-font text-3xl sm:text-4xl font-black bg-gradient-to-r from-yellow-200 via-amber-300 to-orange-400 bg-clip-text text-transparent tracking-tight">
-              {lang === 'te' ? 'వీరభద్ర స్వామి యూత్' : 'VEERABADHRA SWAMY YOUTH'}
+              {lang === 'te' ? 'గణేష్ చందా మేనేజ్‌మెంట్ సిస్టమ్' : 'GANESH CHANDA MANAGEMENT SYSTEM'}
             </h1>
 
             <h2 className="text-xs sm:text-sm font-black uppercase tracking-widest text-amber-200/90 font-mono">
