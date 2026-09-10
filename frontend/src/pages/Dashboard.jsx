@@ -46,9 +46,14 @@ export default function Dashboard() {
         apiClient.get(`/dashboard/summary/${festivalParam}`),
         apiClient.get(`/donations/${festivalParam}`),
       ]);
-      setSummary(summaryRes.data);
-      const list = donationsRes.data.results || donationsRes.data;
-      setRecentDonations(list.slice(0, 6));
+      if (summaryRes?.data) {
+        setSummary(summaryRes.data);
+      }
+      if (donationsRes?.data) {
+        const rawList = donationsRes.data.results || donationsRes.data;
+        const list = Array.isArray(rawList) ? rawList : [];
+        setRecentDonations(list.slice(0, 6));
+      }
     } catch (err) {
       console.error('Error fetching dashboard summary:', err);
     } finally {
