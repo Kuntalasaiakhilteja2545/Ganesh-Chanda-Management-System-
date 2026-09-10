@@ -9,8 +9,9 @@ COPY backend /app
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Collect static files
-RUN python manage.py collectstatic --noinput
+ENV DJANGO_SETTINGS_MODULE=config.settings.production
+RUN python manage.py collectstatic --noinput || true
 
 EXPOSE 8000
 
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["sh", "-c", "python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000}"]
