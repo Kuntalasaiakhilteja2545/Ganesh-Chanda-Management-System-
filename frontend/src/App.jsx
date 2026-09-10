@@ -9,6 +9,7 @@ import { LiveSyncProvider } from './context/LiveSyncContext';
 // Components
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Pages
 import Login from './pages/Login';
@@ -26,12 +27,13 @@ import PublicPortal from './pages/PublicPortal';
 
 export default function App() {
   return (
-    <LanguageProvider>
-      <AuthProvider>
-        <LiveSyncProvider>
-          <SidebarProvider>
-            <ToastProvider>
-              <BrowserRouter>
+    <ErrorBoundary>
+      <LanguageProvider>
+        <AuthProvider>
+          <LiveSyncProvider>
+            <SidebarProvider>
+              <ToastProvider>
+                <BrowserRouter>
               <Routes>
                 {/* Public Routes */}
                 <Route path="/login" element={<Login />} />
@@ -67,6 +69,7 @@ export default function App() {
         </SidebarProvider>
       </LiveSyncProvider>
     </AuthProvider>
-  </LanguageProvider>
+    </LanguageProvider>
+    </ErrorBoundary>
   );
 }

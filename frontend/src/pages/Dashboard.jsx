@@ -40,7 +40,7 @@ export default function Dashboard() {
   }, [activeFestival, syncVersion]);
 
   const fetchDashboardData = async () => {
-    setLoading(true);
+    if (!summary) setLoading(true);
     try {
       const festivalParam = activeFestival ? `?festival_id=${activeFestival.id}` : '';
       const [summaryRes, donationsRes] = await Promise.all([

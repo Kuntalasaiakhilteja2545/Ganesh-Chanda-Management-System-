@@ -98,7 +98,7 @@ export default function Donations() {
   }, [activeFestival, searchQuery, selectedPaymentMethod, selectedTypeFilter, syncVersion]);
 
   const fetchDonations = async () => {
-    setLoading(true);
+    if (!donations || donations.length === 0) setLoading(true);
     try {
       const params = new URLSearchParams();
       if (activeFestival) params.append('festival', activeFestival.id);

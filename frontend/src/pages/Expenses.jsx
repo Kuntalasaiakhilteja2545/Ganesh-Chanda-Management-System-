@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useToast } from '../context/ToastContext';
+import { useLiveSync } from '../context/LiveSyncContext';
 import apiClient from '../api/client';
 import Modal from '../components/Modal';
 import {
@@ -94,7 +95,7 @@ export default function Expenses() {
   }, [activeFestival, selectedCategory, selectedStatusFilter, search, syncVersion]);
 
   const fetchExpenses = async () => {
-    setLoading(true);
+    if (!expenses || expenses.length === 0) setLoading(true);
     try {
       const params = new URLSearchParams();
       if (activeFestival) params.append('festival', activeFestival.id);
