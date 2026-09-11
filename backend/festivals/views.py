@@ -13,8 +13,11 @@ class FestivalViewSet(ModelViewSet):
 
     def get_queryset(self):
         qs = Festival.objects.prefetch_related('committee_members').all()
+        assoc = self.request.query_params.get('association')
         if self.request.user and self.request.user.is_authenticated and getattr(self.request.user, 'association_name', None):
             qs = qs.filter(association_name__iexact=self.request.user.association_name.strip())
+        elif assoc:
+            qs = qs.filter(association_name__iexact=assoc.strip())
         return qs
 
     def get_permissions(self):
@@ -52,8 +55,11 @@ class CommitteeMemberViewSet(ModelViewSet):
 
     def get_queryset(self):
         qs = CommitteeMember.objects.select_related('festival').all()
+        assoc = self.request.query_params.get('association')
         if self.request.user and self.request.user.is_authenticated and getattr(self.request.user, 'association_name', None):
             qs = qs.filter(festival__association_name__iexact=self.request.user.association_name.strip())
+        elif assoc:
+            qs = qs.filter(festival__association_name__iexact=assoc.strip())
         return qs
 
     def get_permissions(self):

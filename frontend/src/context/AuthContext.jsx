@@ -42,7 +42,7 @@ export function AuthProvider({ children }) {
           const createRes = await apiClient.post('/festivals/', {
             name: `Ganesh Chanda ${new Date().getFullYear()}`,
             name_telugu: `గణేష్ చందా ${new Date().getFullYear()}`,
-            association_name: 'Ganesh Youth Association',
+            association_name: user?.association_name || 'Ganesh Youth Association',
             association_name_telugu: 'గణేష్ యువజన సంఘం',
             year: new Date().getFullYear(),
             is_active: true,

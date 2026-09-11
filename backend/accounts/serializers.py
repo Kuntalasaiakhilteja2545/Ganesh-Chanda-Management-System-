@@ -102,13 +102,16 @@ class UserCreateSerializer(serializers.ModelSerializer):
             'full_name',
             'role',
             'mobile_number',
+            'association_name',
         ]
         read_only_fields = ['id']
 
     def validate_mobile_number(self, value):
         mobile = (value or '').strip()
         if mobile:
-            if User.objects.filter(mobile_number=mobile).exists():
+            digits_only = ''.join(c for c in mobile if c.isdigit())
+            # Check exact match or last 10 digits match
+            if User.objects.filter(mobile_number=mobile).exists() or (len(digits_only) >= 10 and User.objects.filter(mobile_number__icontains=digits_only[-10:]).exists()):
                 raise serializers.ValidationError(
                     'This mobile number is already registered with another account.'
                 )

@@ -55,7 +55,10 @@ class DonationExcelView(APIView):
 
         if not festival_id:
             from festivals.models import Festival
-            festival = Festival.objects.filter(is_active=True).first()
+            qs = Festival.objects.all()
+            if request.user and request.user.is_authenticated and getattr(request.user, 'association_name', None):
+                qs = qs.filter(association_name__iexact=request.user.association_name.strip())
+            festival = qs.filter(is_active=True).first() or qs.first()
             if not festival:
                 return Response({'message': 'No active festival'}, status=404)
             festival_id = festival.id
@@ -91,7 +94,10 @@ class ExpenseExcelView(APIView):
 
         if not festival_id:
             from festivals.models import Festival
-            festival = Festival.objects.filter(is_active=True).first()
+            qs = Festival.objects.all()
+            if request.user and request.user.is_authenticated and getattr(request.user, 'association_name', None):
+                qs = qs.filter(association_name__iexact=request.user.association_name.strip())
+            festival = qs.filter(is_active=True).first() or qs.first()
             if not festival:
                 return Response({'message': 'No active festival'}, status=404)
             festival_id = festival.id

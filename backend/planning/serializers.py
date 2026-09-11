@@ -45,11 +45,16 @@ class PlannedExpenseCreateSerializer(serializers.ModelSerializer):
         if not attrs.get('festival'):
             from festivals.models import Festival
             from datetime import datetime
-            active = Festival.objects.filter(is_active=True).first() or Festival.objects.first()
+            request = self.context.get('request')
+            user_assoc = getattr(request.user, 'association_name', '') if request and request.user else ''
+            qs = Festival.objects.all()
+            if user_assoc:
+                qs = qs.filter(association_name__iexact=user_assoc.strip())
+            active = qs.filter(is_active=True).first() or qs.first()
             if not active:
                 active = Festival.objects.create(
                     name=f"Ganesh Chanda {datetime.now().year}",
-                    association_name="Ganesh Youth Association",
+                    association_name=user_assoc or "Ganesh Youth Association",
                     year=datetime.now().year,
                     is_active=True
                 )

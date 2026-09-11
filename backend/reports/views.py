@@ -149,7 +149,10 @@ class DailyReportView(APIView):
         report_date = request.query_params.get('date', str(date.today()))
 
         if not festival_id:
-            festival = Festival.objects.filter(is_active=True).first()
+            qs = Festival.objects.all()
+            if request.user and request.user.is_authenticated and getattr(request.user, 'association_name', None):
+                qs = qs.filter(association_name__iexact=request.user.association_name.strip())
+            festival = qs.filter(is_active=True).first() or qs.first()
             if not festival:
                 return Response({'message': 'No active festival'}, status=404)
             festival_id = festival.id
@@ -195,7 +198,10 @@ class MonthlyReportView(APIView):
         month = request.query_params.get('month', date.today().strftime('%Y-%m'))
 
         if not festival_id:
-            festival = Festival.objects.filter(is_active=True).first()
+            qs = Festival.objects.all()
+            if request.user and request.user.is_authenticated and getattr(request.user, 'association_name', None):
+                qs = qs.filter(association_name__iexact=request.user.association_name.strip())
+            festival = qs.filter(is_active=True).first() or qs.first()
             if not festival:
                 return Response({'message': 'No active festival'}, status=404)
             festival_id = festival.id
@@ -391,10 +397,14 @@ class AuditStatementPdfView(APIView):
         from django.http import HttpResponse
         from receipts.pdf_service import generate_audit_statement_pdf
 
-        festival_id = request.query_params.get('festival_id')
         if not festival_id:
-            active_fest = Festival.objects.filter(is_active=True).first()
-            festival_id = active_fest.id if active_fest else 1
+            qs = Festival.objects.all()
+            if request.user and request.user.is_authenticated and getattr(request.user, 'association_name', None):
+                qs = qs.filter(association_name__iexact=request.user.association_name.strip())
+            active_fest = qs.filter(is_active=True).first() or qs.first()
+            if not active_fest:
+                return Response({'message': 'No active festival found'}, status=404)
+            festival_id = active_fest.id
 
         buffer = generate_audit_statement_pdf(festival_id)
         response = HttpResponse(buffer.getvalue(), content_type='application/pdf')

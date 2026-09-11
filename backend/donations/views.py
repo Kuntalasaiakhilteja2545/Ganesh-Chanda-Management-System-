@@ -134,12 +134,29 @@ class DonationViewSet(ModelViewSet):
         from rest_framework.response import Response
 
         festival_id = request.query_params.get('festival_id')
+        association_param = request.query_params.get('association')
+
         if not festival_id:
             from festivals.models import Festival
-            active_fest = Festival.objects.filter(is_active=True).first()
+            qs = Festival.objects.all()
+            if request.user and request.user.is_authenticated and getattr(request.user, 'association_name', None):
+                qs = qs.filter(association_name__iexact=request.user.association_name.strip())
+            elif association_param:
+                qs = qs.filter(association_name__iexact=association_param.strip())
+
+            active_fest = qs.filter(is_active=True).first() or qs.first()
             if not active_fest:
                 return Response([])
             festival_id = active_fest.id
+        else:
+            # If festival_id is specified and user is authenticated, ensure festival belongs to user association
+            from festivals.models import Festival
+            fest = Festival.objects.filter(id=festival_id).first()
+            if not fest:
+                return Response([])
+            if request.user and request.user.is_authenticated and getattr(request.user, 'association_name', None):
+                if fest.association_name.strip().lower() != request.user.association_name.strip().lower():
+                    return Response([])
 
         auctions = (
             Donation.objects
