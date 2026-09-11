@@ -261,32 +261,35 @@ class RegisterView(APIView):
         from festivals.models import Festival
         from datetime import datetime
 
-        assoc_name = (user.association_name or '').strip()
-        if not assoc_name:
-            assoc_name = 'Ganesh Youth Association'
-            user.association_name = assoc_name
-            user.save(update_fields=['association_name'])
+        try:
+            assoc_name = (user.association_name or '').strip()
+            if not assoc_name:
+                assoc_name = 'Ganesh Youth Association'
+                user.association_name = assoc_name
+                user.save(update_fields=['association_name'])
 
-        active_fest = Festival.objects.filter(
-            association_name__iexact=assoc_name,
-            is_active=True
-        ).first()
+            active_fest = Festival.objects.filter(
+                association_name__iexact=assoc_name,
+                is_active=True
+            ).first()
 
-        if not active_fest:
-            current_year = datetime.now().year
-            # Check if festival for year exists
-            existing_fest = Festival.objects.filter(year=current_year, association_name__iexact=assoc_name).first()
-            if not existing_fest:
-                Festival.objects.create(
-                    name=f"Ganesh Chanda {current_year}",
-                    name_telugu=f"గణేష్ చందా {current_year}",
-                    association_name=assoc_name,
-                    year=current_year,
-                    is_active=True
-                )
-            else:
-                existing_fest.is_active = True
-                existing_fest.save()
+            if not active_fest:
+                current_year = datetime.now().year
+                existing_fest = Festival.objects.filter(year=current_year, association_name__iexact=assoc_name).first()
+                if not existing_fest:
+                    Festival.objects.create(
+                        name=f"Ganesh Chanda {current_year}",
+                        name_telugu=f"గణేష్ చందా {current_year}",
+                        association_name=assoc_name,
+                        year=current_year,
+                        is_active=True
+                    )
+                else:
+                    existing_fest.is_active = True
+                    existing_fest.save()
+        except Exception as fest_err:
+            import logging
+            logging.getLogger(__name__).error(f"Error provisioning festival during register: {fest_err}")
 
         # Generate JWT tokens for instant auto-login
         refresh = RefreshToken.for_user(user)

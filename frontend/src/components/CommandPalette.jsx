@@ -51,7 +51,6 @@ export default function CommandPalette({ isOpen, onClose }) {
       { label: t('settings'), to: '/settings', icon: Settings, category: 'Pages' },
       { label: t('auditLogs'), to: '/audit-logs', icon: ShieldAlert, category: 'Pages' },
     ] : []),
-    { label: t('publicPortal'), to: '/public', icon: Globe2, category: 'Public', isExternal: true },
   ];
 
   // Quick Action Shortcuts

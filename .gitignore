@@ -15,6 +15,11 @@ logs/
 .env
 *.env.local
 
+# Demo/Test Reset Scripts
+reset_fresh_demo.py
+cleanup_old_test_data.py
+*.xlsx
+
 # IDE
 .vscode/
 .idea/

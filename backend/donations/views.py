@@ -160,7 +160,8 @@ class DonationViewSet(ModelViewSet):
 
         auctions = (
             Donation.objects
-            .filter(festival_id=festival_id, donation_type='VELAM_PAATA', status='CONFIRMED')
+            .filter(festival_id=festival_id, donation_type='VELAM_PAATA')
+            .exclude(status='CANCELLED')
             .select_related('donor', 'receipt')
             .order_by('-amount')
         )

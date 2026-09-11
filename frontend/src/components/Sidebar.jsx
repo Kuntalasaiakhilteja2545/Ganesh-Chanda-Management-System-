@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useSidebar } from '../context/SidebarContext';
 import {
+  Trophy,
   LayoutDashboard,
   HandCoins,
   Users,
@@ -29,6 +30,7 @@ export default function Sidebar() {
 
   const navItems = [
     { to: '/dashboard', label: t('dashboard'), icon: LayoutDashboard, show: true },
+    { to: '/velam-paata', label: lang === 'te' ? '🏆 వేలం పాట (Auction)' : '🏆 Velam Paata (Auction)', icon: Trophy, show: true },
     { to: '/donations', label: t('donations'), icon: HandCoins, show: true },
     { to: '/donors', label: t('donors'), icon: Users, show: true },
     { to: '/committee', label: t('committee'), icon: Users2, show: true },
@@ -126,19 +128,6 @@ export default function Sidebar() {
       <div className="p-2.5 border-t border-slate-200 bg-slate-50/50 space-y-1.5">
         {isCollapsed ? (
           <div className="space-y-1.5">
-            <NavLink
-              to="/public"
-              target="_blank"
-              rel="noreferrer"
-              className="w-10 h-10 mx-auto rounded-xl flex items-center justify-center text-amber-700 hover:bg-slate-100 transition-colors group relative"
-              title={t('publicPortal')}
-            >
-              <Globe2 className="w-5 h-5 animate-pulse" />
-              <div className="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-bold rounded-lg shadow-xl whitespace-nowrap opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
-                {t('publicPortal')} ↗
-              </div>
-            </NavLink>
-
             {user && (
               <button
                 onClick={logout}
@@ -154,16 +143,6 @@ export default function Sidebar() {
           </div>
         ) : (
           <>
-            <NavLink
-              to="/public"
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-amber-900 hover:text-amber-950 hover:bg-amber-100/60 rounded-xl transition-all border border-amber-200 bg-amber-50/60"
-            >
-              <Globe2 className="w-4 h-4 shrink-0 text-amber-700 animate-pulse" />
-              <span className="truncate">{t('publicPortal')} ↗</span>
-            </NavLink>
-
             {user && (
               <div className="flex items-center justify-between p-2 rounded-xl bg-white border border-slate-200">
                 <div className="flex items-center gap-2 overflow-hidden">

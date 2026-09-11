@@ -115,18 +115,6 @@ export default function Navbar() {
               <Search className="w-4 h-4" />
             </button>
 
-            {/* Public Portal Link */}
-            <Link
-              to="/public"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl transition-all shadow-2xs"
-            >
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="hidden sm:inline">{t('publicPortal')}</span>
-              <ExternalLink className="w-3.5 h-3.5 text-amber-700" />
-            </Link>
-
             {/* Language Switcher */}
             <button
               onClick={toggleLanguage}

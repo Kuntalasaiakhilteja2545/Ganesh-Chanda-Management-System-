@@ -340,15 +340,6 @@ export default function Donations() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {/* Quick Record Velam Paata Button */}
-          <button
-            onClick={() => handleOpenAdd('VELAM_PAATA')}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-amber-700 to-yellow-600 hover:from-amber-800 hover:to-yellow-700 text-white font-extrabold text-xs rounded-xl shadow-md shadow-amber-700/20 transition-all transform hover:-translate-y-0.5 cursor-pointer"
-          >
-            <Trophy className="w-3.5 h-3.5 text-amber-200" />
-            <span>+ Add Velam Paata (వేలం పాట)</span>
-          </button>
-
           {/* Standard Add Donation Button */}
           <button
             onClick={() => handleOpenAdd('CHANDA')}
@@ -361,39 +352,31 @@ export default function Donations() {
       </div>
 
       {/* Summary Highlights Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Total Collections</p>
-            <h3 className="heading-font text-2xl font-black text-slate-900 mt-0.5">{formatCurrency(totalAmount)}</h3>
-            <p className="text-[10px] text-slate-500 mt-0.5">{donations.length} Confirmed Entries</p>
+            <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Total Chanda Collections</p>
+            <h3 className="heading-font text-2xl font-black text-slate-900 mt-0.5">{formatCurrency(chandaAmount)}</h3>
+            <p className="text-[10px] text-slate-500 mt-0.5">Door-to-door colony collections with instant receipts</p>
           </div>
           <div className="w-10 h-10 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 font-bold">
             ₹
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-3xl border border-amber-200/80 shadow-xs flex items-center justify-between">
+        <Link
+          to="/velam-paata"
+          className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 p-5 rounded-3xl border border-amber-300 shadow-xs flex items-center justify-between hover:border-amber-400 transition-all group"
+        >
           <div>
-            <p className="text-[11px] font-extrabold uppercase tracking-wider text-amber-800">వేలం పాట వసూళ్లు (Velam Paata)</p>
-            <h3 className="heading-font text-2xl font-black text-amber-800 mt-0.5">{formatCurrency(velamPaataAmount)}</h3>
-            <p className="text-[10px] text-amber-700 mt-0.5">Laddu, Tinkayya, Fruits Auction</p>
+            <p className="text-[11px] font-extrabold uppercase tracking-wider text-amber-900">🏆 వేలం పాట (Velam Paata Page)</p>
+            <h3 className="heading-font text-2xl font-black text-amber-900 mt-0.5">{formatCurrency(velamPaataAmount)}</h3>
+            <p className="text-[10px] text-amber-700 mt-0.5 font-semibold group-hover:underline">View Dedicated Velam Paata Page ↗</p>
           </div>
-          <div className="w-10 h-10 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-800">
+          <div className="w-10 h-10 rounded-2xl bg-amber-500/20 flex items-center justify-center text-amber-900 shadow-xs">
             <Trophy className="w-5 h-5" />
           </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs flex items-center justify-between">
-          <div>
-            <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">General Chanda (సాధారణ చందా)</p>
-            <h3 className="heading-font text-2xl font-black text-slate-900 mt-0.5">{formatCurrency(chandaAmount)}</h3>
-            <p className="text-[10px] text-slate-500 mt-0.5">Door-to-door colony collections</p>
-          </div>
-          <div className="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-700">
-            <Sparkles className="w-5 h-5" />
-          </div>
-        </div>
+        </Link>
       </div>
 
       {/* Filter and Search Bar */}

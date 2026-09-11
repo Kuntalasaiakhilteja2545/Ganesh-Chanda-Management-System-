@@ -122,15 +122,14 @@ def create_donation_with_receipt(validated_data, user):
         **data
     )
     
-    # Step 2: Generate unique receipt number
-    receipt_number = generate_receipt_number(donation.festival)
-    
-    # Step 3: Create receipt
-    Receipt.objects.create(
-        donation=donation,
-        receipt_number=receipt_number,
-        festival=donation.festival,
-        generated_by=user,
-    )
+    # Step 2: Generate unique receipt number (Only for non-VELAM_PAATA types)
+    if donation.donation_type != 'VELAM_PAATA':
+        receipt_number = generate_receipt_number(donation.festival)
+        Receipt.objects.create(
+            donation=donation,
+            receipt_number=receipt_number,
+            festival=donation.festival,
+            generated_by=user,
+        )
     
     return donation

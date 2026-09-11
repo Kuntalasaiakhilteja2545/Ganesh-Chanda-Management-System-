@@ -817,17 +817,6 @@ export default function Login() {
                 </form>
               </>
             )}
-
-            {/* Link to Public Transparency Portal */}
-            <div className="mt-4 pt-3 border-t border-amber-500/20 text-center">
-              <Link
-                to="/public"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-400/80 hover:text-amber-300 hover:underline"
-              >
-                <span>🌍 {lang === 'te' ? 'పబ్లిక్ చందా పోర్టల్ చూడండి' : 'View Public Devotee Portal'}</span>
-                <span>→</span>
-              </Link>
-            </div>
           </div>
         </div>
       </div>

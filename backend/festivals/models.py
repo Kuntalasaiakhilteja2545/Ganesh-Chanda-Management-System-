@@ -32,8 +32,7 @@ class Festival(TimestampMixin, models.Model):
         help_text='Youth association name in Telugu'
     )
     year = models.PositiveIntegerField(
-        unique=True,
-        help_text='Festival year (e.g., 2026). Must be unique.'
+        help_text='Festival year (e.g., 2026).'
     )
     start_date = models.DateField(
         null=True, blank=True,
@@ -56,7 +55,7 @@ class Festival(TimestampMixin, models.Model):
     is_active = models.BooleanField(
         default=False,
         db_index=True,
-        help_text='Only ONE festival should be active at a time (current year)'
+        help_text='Only ONE festival should be active at a time per association'
     )
     upi_id = models.CharField(
         max_length=100,
@@ -72,6 +71,12 @@ class Festival(TimestampMixin, models.Model):
     class Meta:
         db_table = 'festivals'
         ordering = ['-year']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['year', 'association_name'],
+                name='unique_year_per_association'
+            )
+        ]
 
     def __str__(self):
         return f"{self.name} ({self.year})"

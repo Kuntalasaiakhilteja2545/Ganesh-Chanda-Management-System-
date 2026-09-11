@@ -23,7 +23,7 @@ import Reports from './pages/Reports';
 import Festivals from './pages/Festivals';
 import Settings from './pages/Settings';
 import AuditLogs from './pages/AuditLogs';
-import PublicPortal from './pages/PublicPortal';
+import VelamPaata from './pages/VelamPaata';
 
 export default function App() {
   return (
@@ -37,7 +37,7 @@ export default function App() {
               <Routes>
                 {/* Public Routes */}
                 <Route path="/login" element={<Login />} />
-                <Route path="/public" element={<PublicPortal />} />
+                <Route path="/public" element={<Navigate to="/login" replace />} />
 
                 {/* Authenticated Application Shell */}
                 <Route
@@ -50,6 +50,7 @@ export default function App() {
                 >
                   <Route index element={<Navigate to="/dashboard" replace />} />
                   <Route path="dashboard" element={<Dashboard />} />
+                  <Route path="velam-paata" element={<VelamPaata />} />
                   <Route path="donations" element={<Donations />} />
                   <Route path="donors" element={<Donors />} />
                   <Route path="committee" element={<Committee />} />

@@ -90,6 +90,10 @@ class DashboardView(APIView):
             festival_id=festival_id, status='CONFIRMED', donation_type='VELAM_PAATA'
         ).aggregate(total=Sum('amount', default=Decimal('0')), count=Count('id'))
 
+        velam_paata_pending_agg = Donation.objects.filter(
+            festival_id=festival_id, status='PENDING', donation_type='VELAM_PAATA'
+        ).aggregate(total=Sum('amount', default=Decimal('0')), count=Count('id'))
+
         chanda_agg = Donation.objects.filter(
             festival_id=festival_id, status='CONFIRMED', donation_type='CHANDA'
         ).aggregate(total=Sum('amount', default=Decimal('0')), count=Count('id'))
@@ -119,6 +123,8 @@ class DashboardView(APIView):
             'expense_count': expenses_agg['count'],
             'velam_paata_total': str(velam_paata_agg['total']),
             'velam_paata_count': velam_paata_agg['count'],
+            'velam_paata_pending_total': str(velam_paata_pending_agg['total']),
+            'velam_paata_pending_count': velam_paata_pending_agg['count'],
             'chanda_total': str(chanda_agg['total']),
             'chanda_count': chanda_agg['count'],
             'annadhanam_total': str(annadhanam_total),

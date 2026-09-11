@@ -66,11 +66,13 @@ class PaymentMethods:
 # =============================================================================
 class DonationStatus:
     CONFIRMED = 'CONFIRMED'
+    PARTIAL = 'PARTIAL'
     PENDING = 'PENDING'
     CANCELLED = 'CANCELLED'
 
     CHOICES = [
-        (CONFIRMED, 'Confirmed'),
+        (CONFIRMED, 'Confirmed / Paid'),
+        (PARTIAL, 'Partial Paid'),
         (PENDING, 'Pending'),
         (CANCELLED, 'Cancelled'),
     ]

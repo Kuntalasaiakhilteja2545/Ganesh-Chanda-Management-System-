@@ -198,16 +198,6 @@ export default function Settings() {
             Configure Ganesh Youth association details, pandal venue location, and upload your real PhonePe / GPay QR code.
           </p>
         </div>
-
-        <Link
-          to="/public"
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-bold rounded-xl border border-amber-200 shadow-2xs transition-all"
-        >
-          <Eye className="w-3.5 h-3.5 text-amber-700" />
-          <span>View Live Public Portal ↗</span>
-        </Link>
       </div>
 
       {savedSuccess && (
