@@ -104,7 +104,14 @@ export default function Expenses() {
       if (search.trim()) params.append('search', search.trim());
 
       const res = await apiClient.get(`/expenses/?${params.toString()}`);
-      setExpenses(res.data.results || res.data);
+      const list = res.data.results || res.data;
+      if (Array.isArray(list) && list.length === 0 && activeFestival && !selectedCategory && !selectedStatusFilter && !search.trim()) {
+        const fallbackRes = await apiClient.get('/expenses/');
+        const fallbackList = fallbackRes.data.results || fallbackRes.data;
+        setExpenses(Array.isArray(fallbackList) ? fallbackList : []);
+      } else {
+        setExpenses(Array.isArray(list) ? list : []);
+      }
     } catch (err) {
       console.error('Error fetching expenses:', err);
     } finally {

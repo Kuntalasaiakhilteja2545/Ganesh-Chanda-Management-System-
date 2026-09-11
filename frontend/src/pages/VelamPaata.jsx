@@ -57,6 +57,7 @@ export default function VelamPaata() {
   const [customItem, setCustomItem] = useState('');
   const [paymentStatus, setPaymentStatus] = useState('CONFIRMED');
   const [paymentMethod, setPaymentMethod] = useState('CASH');
+  const [donationDate, setDonationDate] = useState(new Date().toISOString().split('T')[0]);
   const [notesText, setNotesText] = useState('');
 
   useEffect(() => {
@@ -152,7 +153,7 @@ export default function VelamPaata() {
       else if (categoryFilter === 'TINKAYYA') matchesCategory = itemStr.includes('టెంకాయ') || itemStr.includes('coconut') || itemStr.includes('tinkayya');
       else if (categoryFilter === 'FRUITS') matchesCategory = itemStr.includes('పండ్లు') || itemStr.includes('fruit');
       else if (categoryFilter === 'CUSTOM') {
-        matchesCategory = !itemStr.includes('మహా లడ్డు') && !itemStr.includes('చిన్న లడ్డు') && !itemStr.includes('టెంకాయ') && !itemStr.includes('పండ్లు');
+        matchesCategory = !itemStr.includes('మహా లడ్డు') && !itemStr.includes('చిన్న లడ్డు') && !itemStr.includes('టెంకాయ') && !itemStr.includes('పండ్ల');
       }
     }
 
@@ -167,6 +168,7 @@ export default function VelamPaata() {
       setDonorMobile(auctionToEdit.donor_mobile || '');
       setDonorAddress(auctionToEdit.donor_address || '');
       setTotalBidAmount(auctionToEdit.amount || '');
+      setDonationDate(auctionToEdit.donation_date || new Date().toISOString().split('T')[0]);
 
       const itemVal = auctionToEdit.auction_item || '';
       if (itemVal.includes('మహా లడ్డు')) setItemPreset('మహా లడ్డు (MAHA LADDU)');
@@ -196,6 +198,7 @@ export default function VelamPaata() {
       setDonorAddress('');
       setTotalBidAmount('');
       setPartialPaidAmount('');
+      setDonationDate(new Date().toISOString().split('T')[0]);
       setItemPreset('మహా లడ్డు (MAHA LADDU)');
       setCustomItem('');
       setPaymentStatus('CONFIRMED');
@@ -250,6 +253,7 @@ export default function VelamPaata() {
       payment_method: paymentMethod,
       status: paymentStatus,
       notes: finalNotes,
+      donation_date: donationDate || new Date().toISOString().split('T')[0],
       ...(activeFestival && { festival: activeFestival.id }),
     };
 
@@ -776,22 +780,35 @@ export default function VelamPaata() {
             </div>
           </div>
 
-          {/* Payment Method */}
-          <div>
-            <label className="block text-xs font-extrabold uppercase text-slate-700 mb-1">
-              Payment Method (చెల్లింపు విధానం)
-            </label>
-            <select
-              value={paymentMethod}
-              onChange={(e) => setPaymentMethod(e.target.value)}
-              className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-extrabold focus:outline-none focus:border-amber-500"
-            >
-              <option value="CASH">💵 Cash (నగదు)</option>
-              <option value="PHONEPE">📱 PhonePe / UPI</option>
-              <option value="GOOGLEPAY">📱 Google Pay</option>
-              <option value="PAYTM">📱 Paytm</option>
-              <option value="BANK_TRANSFER">🏦 Bank Transfer</option>
-            </select>
+          {/* Payment Method & Date */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-extrabold uppercase text-slate-700 mb-1">
+                Payment Method (చెల్లింపు విధానం)
+              </label>
+              <select
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-extrabold focus:outline-none focus:border-amber-500"
+              >
+                <option value="CASH">💵 Cash (నగదు)</option>
+                <option value="PHONEPE">📱 PhonePe / UPI</option>
+                <option value="GOOGLEPAY">📱 Google Pay</option>
+                <option value="PAYTM">📱 Paytm</option>
+                <option value="BANK_TRANSFER">🏦 Bank Transfer</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-extrabold uppercase text-slate-700 mb-1">
+                Date (తేదీ) *
+              </label>
+              <input
+                type="date"
+                value={donationDate}
+                onChange={(e) => setDonationDate(e.target.value)}
+                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-amber-500"
+              />
+            </div>
           </div>
 
           {/* Remarks / Notes */}

@@ -40,16 +40,29 @@ class ExpenseViewSet(ModelViewSet):
     serializer_class = ExpenseSerializer
     search_fields = ['description', 'category__name', 'vendor_name']
     ordering_fields = ['expense_date', 'amount', 'created_at']
-    filterset_fields = ['festival', 'category', 'payment_method', 'payment_status', 'paid_by', 'expense_date']
+    filterset_fields = ['category', 'payment_method', 'payment_status', 'paid_by', 'expense_date']
 
     def get_queryset(self):
+        from django.db.models import Q
         qs = (
             Expense.objects
             .select_related('category', 'festival', 'paid_by')
             .all()
         )
-        if self.request.user and self.request.user.is_authenticated and getattr(self.request.user, 'association_name', None):
-            qs = qs.filter(festival__association_name__iexact=self.request.user.association_name.strip())
+        user = self.request.user
+        if user and user.is_authenticated:
+            user_assoc = getattr(user, 'association_name', '')
+            if user_assoc:
+                qs = qs.filter(
+                    Q(festival__association_name__iexact=user_assoc.strip()) |
+                    Q(paid_by=user)
+                )
+
+        festival_id = self.request.query_params.get('festival')
+        if festival_id:
+            if qs.filter(festival_id=festival_id).exists():
+                qs = qs.filter(festival_id=festival_id)
+
         return qs
 
     def get_serializer_class(self):

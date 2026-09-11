@@ -54,9 +54,19 @@ class DashboardView(APIView):
             total=Sum('amount', default=Decimal('0')),
             count=Count('id'),
         )
-        expenses_agg = Expense.objects.filter(
-            festival_id=festival_id
-        ).aggregate(
+        
+        # Check if expenses exist for exact festival, else fallback to association
+        from django.db.models import Q
+        assoc_name = getattr(festival, 'association_name', '')
+        expenses_qs = Expense.objects.filter(
+            Q(festival_id=festival_id) | (Q(festival__association_name__iexact=assoc_name.strip()) if assoc_name else Q())
+        )
+        if not Expense.objects.filter(festival_id=festival_id).exists() and assoc_name:
+            expenses_qs = Expense.objects.filter(festival__association_name__iexact=assoc_name.strip())
+        else:
+            expenses_qs = Expense.objects.filter(festival_id=festival_id)
+
+        expenses_agg = expenses_qs.aggregate(
             total=Sum('amount', default=Decimal('0')),
             count=Count('id'),
         )
@@ -66,8 +76,8 @@ class DashboardView(APIView):
             festival_id=festival_id, donation_date=today, status='CONFIRMED'
         ).aggregate(total=Sum('amount', default=Decimal('0')), count=Count('id'))
 
-        today_expenses = Expense.objects.filter(
-            festival_id=festival_id, expense_date=today
+        today_expenses = expenses_qs.filter(
+            expense_date=today
         ).aggregate(total=Sum('amount', default=Decimal('0')), count=Count('id'))
 
         # Payment method breakdown
@@ -80,7 +90,7 @@ class DashboardView(APIView):
 
         # Expense category breakdown
         category_breakdown = list(
-            Expense.objects.filter(festival_id=festival_id)
+            expenses_qs
             .values('category__name')
             .annotate(total=Sum('amount'), count=Count('id'))
             .order_by('-total')

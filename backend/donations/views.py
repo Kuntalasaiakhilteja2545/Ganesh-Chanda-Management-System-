@@ -50,21 +50,33 @@ class DonationViewSet(ModelViewSet):
     serializer_class = DonationSerializer
     search_fields = ['donor__name', 'receipt__receipt_number', 'transaction_id']
     ordering_fields = ['donation_date', 'amount', 'created_at']
-    filterset_fields = ['festival', 'payment_method', 'status', 'collected_by', 'donation_date']
+    filterset_fields = ['payment_method', 'status', 'collected_by', 'donation_date']
 
     def get_queryset(self):
+        from django.db.models import Q
         queryset = (
             Donation.objects
             .select_related('donor', 'festival', 'collected_by', 'receipt')
             .all()
         )
 
-        if self.request.user and self.request.user.is_authenticated and getattr(self.request.user, 'association_name', None):
-            queryset = queryset.filter(festival__association_name__iexact=self.request.user.association_name.strip())
+        user = self.request.user
+        if user and user.is_authenticated:
+            user_assoc = getattr(user, 'association_name', '')
+            if user_assoc:
+                queryset = queryset.filter(
+                    Q(festival__association_name__iexact=user_assoc.strip()) |
+                    Q(collected_by=user)
+                )
+
+        festival_id = self.request.query_params.get('festival')
+        if festival_id:
+            if queryset.filter(festival_id=festival_id).exists():
+                queryset = queryset.filter(festival_id=festival_id)
 
         # Collectors can only see their own donations
-        if self.request.user and getattr(self.request.user, 'role', None) == Roles.COLLECTOR:
-            queryset = queryset.filter(collected_by=self.request.user)
+        if user and getattr(user, 'role', None) == Roles.COLLECTOR:
+            queryset = queryset.filter(collected_by=user)
 
         return queryset
 

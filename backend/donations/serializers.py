@@ -96,6 +96,7 @@ class DonationCreateSerializer(serializers.ModelSerializer):
     donor_name = serializers.CharField(required=False, allow_blank=True)
     donor_mobile = serializers.CharField(required=False, allow_blank=True)
     donor_address = serializers.CharField(required=False, allow_blank=True)
+    donation_date = serializers.DateField(required=False, allow_null=True)
 
     class Meta:
         model = Donation
@@ -117,6 +118,10 @@ class DonationCreateSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, data):
+        from datetime import date
+        if not data.get('donation_date'):
+            data['donation_date'] = date.today()
+
         if not data.get('festival'):
             from festivals.models import Festival
             from datetime import datetime
