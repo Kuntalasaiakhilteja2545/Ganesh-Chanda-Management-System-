@@ -46,6 +46,14 @@ export function LiveSyncProvider({ children }) {
     };
   }, [broadcastChannel]);
 
+  // Auto live-sync polling interval (every 10 seconds) for real-time dashboard & page updates across devices
+  useEffect(() => {
+    const pollInterval = setInterval(() => {
+      setSyncVersion((prev) => prev + 1);
+    }, 10000);
+    return () => clearInterval(pollInterval);
+  }, []);
+
   // Keep-Alive Ping Service — keeps Render backend warm every 4 minutes
   useEffect(() => {
     const pingBackend = async () => {
@@ -70,6 +78,7 @@ export function LiveSyncProvider({ children }) {
         lastSyncTime,
         syncVersion,
         notifyLiveUpdate,
+        triggerSync: notifyLiveUpdate,
       }}
     >
       {children}

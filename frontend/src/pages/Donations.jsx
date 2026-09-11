@@ -370,7 +370,7 @@ export default function Donations() {
           className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 p-5 rounded-3xl border border-amber-300 shadow-xs flex items-center justify-between hover:border-amber-400 transition-all group"
         >
           <div>
-            <p className="text-[11px] font-extrabold uppercase tracking-wider text-amber-900">🏆 వేలం పాట (Velam Paata Page)</p>
+            <p className="text-[11px] font-extrabold uppercase tracking-wider text-amber-900">వేలం పాట (Velam Paata Page)</p>
             <h3 className="heading-font text-2xl font-black text-amber-900 mt-0.5">{formatCurrency(velamPaataAmount)}</h3>
             <p className="text-[10px] text-amber-700 mt-0.5 font-semibold group-hover:underline">View Dedicated Velam Paata Page ↗</p>
           </div>

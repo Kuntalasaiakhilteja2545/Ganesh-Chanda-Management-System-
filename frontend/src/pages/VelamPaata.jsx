@@ -32,7 +32,7 @@ import {
 export default function VelamPaata() {
   const { user, isCollector, activeFestival } = useAuth();
   const { lang, t } = useLanguage();
-  const { syncVersion, triggerSync } = useLiveSync();
+  const { syncVersion, triggerSync, notifyLiveUpdate } = useLiveSync();
   const { success: showToastSuccess, error: showToastError } = useToast();
 
   const [auctions, setAuctions] = useState([]);
@@ -339,10 +339,10 @@ export default function VelamPaata() {
             </div>
             <div>
               <h1 className="heading-font text-xl sm:text-2xl font-black text-amber-200 tracking-tight">
-                🏆 వేలం పాట (Sacred Nimajjanam Velam Paata)
+                వేలం పాట (Velam Paata)
               </h1>
               <p className="text-xs text-amber-200/80 mt-0.5 font-medium">
-                Maha Laddu, Small Laddu, Sacred Coconuts, Fruits, Full/Partial Bids & Nimajjanam Opening Balance
+                Maha Laddu, Small Laddu, Coconuts, Fruits & Full/Partial Auction Bids
               </p>
             </div>
           </div>

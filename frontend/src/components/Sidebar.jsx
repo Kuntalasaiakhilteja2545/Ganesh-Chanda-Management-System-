@@ -30,7 +30,7 @@ export default function Sidebar() {
 
   const navItems = [
     { to: '/dashboard', label: t('dashboard'), icon: LayoutDashboard, show: true },
-    { to: '/velam-paata', label: lang === 'te' ? '🏆 వేలం పాట (Auction)' : '🏆 Velam Paata (Auction)', icon: Trophy, show: true },
+    { to: '/velam-paata', label: lang === 'te' ? 'వేలం పాట (Velam Paata)' : 'Velam Paata', icon: Trophy, show: true },
     { to: '/donations', label: t('donations'), icon: HandCoins, show: true },
     { to: '/donors', label: t('donors'), icon: Users, show: true },
     { to: '/committee', label: t('committee'), icon: Users2, show: true },
