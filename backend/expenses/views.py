@@ -43,11 +43,14 @@ class ExpenseViewSet(ModelViewSet):
     filterset_fields = ['festival', 'category', 'payment_method', 'payment_status', 'paid_by', 'expense_date']
 
     def get_queryset(self):
-        return (
+        qs = (
             Expense.objects
             .select_related('category', 'festival', 'paid_by')
             .all()
         )
+        if self.request.user and self.request.user.is_authenticated and getattr(self.request.user, 'association_name', None):
+            qs = qs.filter(festival__association_name__iexact=self.request.user.association_name.strip())
+        return qs
 
     def get_serializer_class(self):
         if self.action == 'create':

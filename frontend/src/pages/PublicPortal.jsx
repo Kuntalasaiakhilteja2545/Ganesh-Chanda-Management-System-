@@ -32,10 +32,20 @@ export default function PublicPortal() {
   const fetchPublicData = async () => {
     setLoading(true);
     try {
+      const searchParams = new URLSearchParams(window.location.search);
+      const festId = searchParams.get('festival_id');
+      const assoc = searchParams.get('association');
+
+      const params = new URLSearchParams();
+      if (festId) params.append('festival_id', festId);
+      if (assoc) params.append('association', assoc);
+
+      const queryStr = params.toString() ? `?${params.toString()}` : '';
+
       const [dashRes, festRes, commRes] = await Promise.all([
-        apiClient.get('/public/dashboard/'),
-        apiClient.get('/festivals/'),
-        apiClient.get('/committee-members/'),
+        apiClient.get(`/public/dashboard/${queryStr}`),
+        apiClient.get(`/festivals/${queryStr}`),
+        apiClient.get(`/committee-members/${queryStr}`),
       ]);
 
       setData(dashRes.data);

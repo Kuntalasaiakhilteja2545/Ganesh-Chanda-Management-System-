@@ -225,54 +225,23 @@ class LogoutView(APIView):
 
 
 class UserListCreateView(APIView):
-    """
-    List all users or create a new user (Admin only).
-    
-    GET /api/auth/users/
-        → List all committee members
-    
-    POST /api/auth/users/
-        → Create a new user (admin, treasurer, or collector)
-    
-    Request (POST):
-        {
-            "username": "akhil",
-            "password": "securepass123",
-            "full_name": "Akhil Kumar",
-            "role": "COLLECTOR",
-            "email": "akhil@ganeshyouth.com",
-            "mobile_number": "9876543210"
-        }
-    
-    Response (201):
-        {
-            "id": 2,
-            "username": "akhil",
-            "email": "akhil@ganeshyouth.com",
-            "full_name": "Akhil Kumar",
-            "role": "COLLECTOR",
-            "mobile_number": "9876543210"
-        }
-    
-    PERMISSION: IsAdmin — only admin can create/view users.
-    
-    WHY NOT A ViewSet: User management is admin-only with special logic
-    (password hashing). Keeping it as APIView gives us explicit control.
-    """
     permission_classes = [IsAdmin]
 
     def get(self, request):
         from django.contrib.auth import get_user_model
         User = get_user_model()
-        users = User.objects.all()
+        users = User.objects.filter(association_name__iexact=request.user.association_name) if request.user.association_name else User.objects.all()
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = UserCreateSerializer(data=request.data)
+        data = request.data.copy()
+        if not data.get('association_name') and request.user.association_name:
+            data['association_name'] = request.user.association_name
+        serializer = UserCreateSerializer(data=data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        user = serializer.save()
+        return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
 
 
 class RegisterView(APIView):
@@ -287,6 +256,37 @@ class RegisterView(APIView):
         serializer = UserCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+
+        # Provision fresh active Festival if user is ADMIN and no festival exists for this association
+        from festivals.models import Festival
+        from datetime import datetime
+
+        assoc_name = (user.association_name or '').strip()
+        if not assoc_name:
+            assoc_name = 'Ganesh Youth Association'
+            user.association_name = assoc_name
+            user.save(update_fields=['association_name'])
+
+        active_fest = Festival.objects.filter(
+            association_name__iexact=assoc_name,
+            is_active=True
+        ).first()
+
+        if not active_fest:
+            current_year = datetime.now().year
+            # Check if festival for year exists
+            existing_fest = Festival.objects.filter(year=current_year, association_name__iexact=assoc_name).first()
+            if not existing_fest:
+                Festival.objects.create(
+                    name=f"Ganesh Chanda {current_year}",
+                    name_telugu=f"గణేష్ చందా {current_year}",
+                    association_name=assoc_name,
+                    year=current_year,
+                    is_active=True
+                )
+            else:
+                existing_fest.is_active = True
+                existing_fest.save()
 
         # Generate JWT tokens for instant auto-login
         refresh = RefreshToken.for_user(user)

@@ -53,22 +53,17 @@ class DonationViewSet(ModelViewSet):
     filterset_fields = ['festival', 'payment_method', 'status', 'collected_by', 'donation_date']
 
     def get_queryset(self):
-        """
-        Dynamic queryset — different users see different data.
-        
-        ADMIN/TREASURER: See ALL donations
-        COLLECTOR: See ONLY their own collected donations
-        
-        select_related() JOINs related tables in ONE query.
-        """
         queryset = (
             Donation.objects
             .select_related('donor', 'festival', 'collected_by', 'receipt')
             .all()
         )
 
+        if self.request.user and self.request.user.is_authenticated and getattr(self.request.user, 'association_name', None):
+            queryset = queryset.filter(festival__association_name__iexact=self.request.user.association_name.strip())
+
         # Collectors can only see their own donations
-        if self.request.user.role == Roles.COLLECTOR:
+        if self.request.user and getattr(self.request.user, 'role', None) == Roles.COLLECTOR:
             queryset = queryset.filter(collected_by=self.request.user)
 
         return queryset

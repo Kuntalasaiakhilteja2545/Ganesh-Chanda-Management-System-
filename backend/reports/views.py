@@ -32,7 +32,10 @@ class DashboardView(APIView):
     def get(self, request):
         festival_id = request.query_params.get('festival_id')
         if not festival_id:
-            festival = Festival.objects.filter(is_active=True).first()
+            qs = Festival.objects.all()
+            if request.user and request.user.is_authenticated and getattr(request.user, 'association_name', None):
+                qs = qs.filter(association_name__iexact=request.user.association_name.strip())
+            festival = qs.filter(is_active=True).first() or qs.first()
             if not festival:
                 return Response({'message': 'No active festival found'}, status=404)
             festival_id = festival.id
@@ -313,15 +316,17 @@ class PublicDashboardView(APIView):
 
     def get(self, request):
         festival_id = request.query_params.get('festival_id')
-        if not festival_id:
-            festival = Festival.objects.filter(is_active=True).first()
-            if not festival:
-                return Response({'message': 'No active festival'}, status=404)
-        else:
-            try:
-                festival = Festival.objects.get(id=festival_id)
-            except Festival.DoesNotExist:
-                return Response({'message': 'Festival not found'}, status=404)
+        association_param = request.query_params.get('association')
+
+        qs = Festival.objects.all()
+        if festival_id:
+            qs = qs.filter(id=festival_id)
+        elif association_param:
+            qs = qs.filter(association_name__iexact=association_param.strip())
+
+        festival = qs.filter(is_active=True).first() or qs.first()
+        if not festival:
+            return Response({'message': 'No active festival found'}, status=404)
 
         total_donations = Donation.objects.filter(
             festival=festival, status='CONFIRMED'
@@ -358,6 +363,8 @@ class PublicDashboardView(APIView):
                 'association_name_telugu': festival.association_name_telugu,
                 'location': festival.location,
                 'landmark': festival.landmark,
+                'upi_id': festival.upi_id,
+                'qr_code_image': festival.qr_code_image,
                 'year': festival.year,
             },
             'total_donations': str(total_donations),

@@ -78,7 +78,10 @@ class Festival(TimestampMixin, models.Model):
 
     def save(self, *args, **kwargs):
         if self.is_active:
-            Festival.objects.filter(is_active=True).exclude(pk=self.pk).update(is_active=False)
+            qs = Festival.objects.filter(is_active=True).exclude(pk=self.pk)
+            if self.association_name:
+                qs = qs.filter(association_name__iexact=self.association_name.strip())
+            qs.update(is_active=False)
         super().save(*args, **kwargs)
 
 

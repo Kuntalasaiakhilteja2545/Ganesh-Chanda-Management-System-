@@ -37,10 +37,16 @@ class DonorViewSet(ModelViewSet):
     
     Search: GET /api/donors/?search=Ravi
     """
-    queryset = Donor.objects.all()  # ActiveManager auto-excludes deleted
     serializer_class = DonorSerializer
-    search_fields = ['name', 'mobile_number']  # SearchFilter uses these
+    search_fields = ['name', 'mobile_number']
     ordering_fields = ['name', 'created_at']
+
+    def get_queryset(self):
+        qs = Donor.objects.all()
+        if self.request.user and self.request.user.is_authenticated and getattr(self.request.user, 'association_name', None):
+            assoc = self.request.user.association_name.strip()
+            qs = qs.filter(donations__festival__association_name__iexact=assoc).distinct()
+        return qs
 
     def get_permissions(self):
         """

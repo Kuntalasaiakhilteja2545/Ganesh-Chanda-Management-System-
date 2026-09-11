@@ -39,7 +39,8 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
-  const [role, setRole] = useState('COLLECTOR');
+  const [associationName, setAssociationName] = useState('');
+  const [role, setRole] = useState('ADMIN');
 
   // Forgot form fields
   const [forgotMobile, setForgotMobile] = useState('');
@@ -112,6 +113,7 @@ export default function Login() {
           password: password,
           full_name: fullName.trim(),
           mobile_number: mobileNumber.trim(),
+          association_name: associationName.trim() || 'Ganesh Youth Association',
           role: role,
         });
         setIsSuccess(true);
@@ -694,6 +696,28 @@ export default function Login() {
                           onChange={(e) => setMobileNumber(e.target.value)}
                           placeholder="e.g. 9876543210"
                           className="block w-full pl-10 pr-4 py-2.5 bg-black/50 border border-amber-500/25 rounded-xl text-sm font-mono text-amber-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-400 transition-all shadow-inner"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Youth Association / Committee Name Field (Register Mode Only) */}
+                  {mode === 'register' && (
+                    <div className="animate-in fade-in duration-200">
+                      <label className="block text-[11px] font-extrabold uppercase tracking-wider text-amber-200/80 mb-1">
+                        {lang === 'te' ? 'యువజన సంఘం / కమిటీ పేరు' : 'Youth Association / Committee Name'} *
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-amber-400/60">
+                          <Sparkles className="w-4 h-4 text-amber-400" />
+                        </div>
+                        <input
+                          type="text"
+                          required
+                          value={associationName}
+                          onChange={(e) => setAssociationName(e.target.value)}
+                          placeholder="e.g. Sri Veera Bhadra Swamy Youth"
+                          className="block w-full pl-10 pr-4 py-2.5 bg-black/50 border border-amber-500/25 rounded-xl text-sm font-medium text-amber-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-400 transition-all shadow-inner"
                         />
                       </div>
                     </div>

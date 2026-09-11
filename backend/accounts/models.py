@@ -53,6 +53,13 @@ class User(AbstractUser):
         blank=True,
         help_text='Mobile number for contact'
     )
+    association_name = models.CharField(
+        max_length=200,
+        blank=True,
+        default='Ganesh Youth Association',
+        db_index=True,
+        help_text='Youth association / committee name (e.g. Sri Veera Bhadra Swamy Youth)'
+    )
 
     class Meta:
         db_table = 'users'  # Explicit table name instead of Django's default 'accounts_user'

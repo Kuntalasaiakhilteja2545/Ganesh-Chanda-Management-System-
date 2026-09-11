@@ -62,6 +62,7 @@ class UserSerializer(serializers.ModelSerializer):
             'full_name',
             'role',
             'mobile_number',
+            'association_name',
             'is_active',
             'date_joined',
         ]
@@ -103,6 +104,24 @@ class UserCreateSerializer(serializers.ModelSerializer):
             'mobile_number',
         ]
         read_only_fields = ['id']
+
+    def validate_mobile_number(self, value):
+        mobile = (value or '').strip()
+        if mobile:
+            if User.objects.filter(mobile_number=mobile).exists():
+                raise serializers.ValidationError(
+                    'This mobile number is already registered with another account.'
+                )
+        return mobile
+
+    def validate_username(self, value):
+        username = (value or '').strip()
+        if username:
+            if User.objects.filter(username__iexact=username).exists():
+                raise serializers.ValidationError(
+                    'This username is already taken. Please choose another username.'
+                )
+        return username
 
     def create(self, validated_data):
         """
